@@ -21,7 +21,9 @@
             font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text);
             margin: 0; padding: env(safe-area-inset-top) 15px 120px 15px; -webkit-tap-highlight-color: transparent;
         }
-        .sticky-header { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 100; }
+        .sticky-header { position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 100; transition: padding 0.2s ease; }
+        .sticky-header.compact { padding: 6px 0; }
+        .sticky-header.compact .header-top, .sticky-header.compact .filter-row, .sticky-header.compact .sort-row { display: none; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         h1 { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         .timestamp-container { text-align: right; line-height: 1.2; }
@@ -47,7 +49,9 @@
         .ticker { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
         .price { font-size: 20px; font-weight: 700; display:flex; align-items:center; gap:10px; }
 
-        .triple-icons { display:inline-flex; gap:6px; align-items:center; }
+        .triple-icons { display:inline-flex; gap:4px; align-items:center; }
+        .signal-mini { display: inline-flex; align-items: center; gap: 2px; }
+        .signal-mini-label { color: var(--secondary); font-size: 8px; font-weight: 900; }
         .sig-dot { font-size: 16px; line-height: 1; filter: saturate(1.1); }
 
         .list-badge { font-size: 9px; background: #3a3a3c; padding: 2px 5px; border-radius: 4px; color: var(--orange); font-weight: 900; }
@@ -1356,10 +1360,10 @@
                         <span style="font-size:11px; color:var(--secondary); font-weight:600; margin-top:2px;">${s.Navn || ""}</span>
                     </div>
                     <span class="price">
-                        <span class="triple-icons" title="Trend / Setup / Risiko">
-                            <span class="sig-dot" style="color:${tDot.color};">${tDot.icon}</span>
-                            <span class="sig-dot" style="color:${sDot.color};">${sDot.icon}</span>
-                            <span class="sig-dot" style="color:${rDot.color};">${rDot.icon}</span>
+                        <span class="triple-icons" title="T = Trend · S = Setup · R = Risiko" aria-label="T = Trend, S = Setup, R = Risiko">
+                            <span class="signal-mini"><span class="signal-mini-label">T</span><span class="sig-dot" style="color:${tDot.color};">${tDot.icon}</span></span>
+                            <span class="signal-mini"><span class="signal-mini-label">S</span><span class="sig-dot" style="color:${sDot.color};">${sDot.icon}</span></span>
+                            <span class="signal-mini"><span class="signal-mini-label">R</span><span class="sig-dot" style="color:${rDot.color};">${rDot.icon}</span></span>
                         </span>
                         ${Number(getLastPrice(s)).toFixed(2)}
                     </span>
@@ -1512,9 +1516,16 @@
         }
     }, { passive: true });
 
+    function updateHeaderCompactState() {
+        const header = document.querySelector('.sticky-header');
+        header.classList.toggle('compact', window.scrollY > 100);
+    }
+    window.addEventListener('scroll', updateHeaderCompactState, { passive: true });
+
     // Start
     load();
     updateSearchClearButton();
+    updateHeaderCompactState();
     setInterval(load, 60000);
 </script>
 </body>
