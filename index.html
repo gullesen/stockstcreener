@@ -32,6 +32,10 @@
             width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--card); color: var(--text);
             font-size: 14px; margin-bottom: 8px; box-sizing: border-box; outline: none;
         }
+        .search-wrap { position: relative; margin-bottom: 8px; }
+        .search-wrap input { margin-bottom: 0; padding-right: 44px; }
+        .clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; width: 30px; height: 30px; border: none; border-radius: 50%; background: #3a3a3c; color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; }
+        .clear-search.visible { display: block; }
         .filter-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .filter-btn { flex: 1; font-weight: 600; }
         .active-filter { background: var(--blue) !important; }
@@ -230,7 +234,10 @@
         <button id="f-mine" class="filter-btn" onclick="setFilter('mine')">Mine</button>
         <button id="f-radar" class="filter-btn" onclick="setFilter('radar')">Radar</button>
     </div>
-    <input type="text" id="search" placeholder="Søk ticker eller navn..." onkeyup="render()">
+    <div class="search-wrap">
+        <input type="text" id="search" placeholder="Søk ticker eller navn..." oninput="render(); updateSearchClearButton()">
+        <button type="button" id="clear-search" class="clear-search" aria-label="Tøm søk" onclick="clearSearch()">×</button>
+    </div>
     <div class="sort-row">
         <div id="btn-score" class="sort-btn" onclick="setSort('score')">Score</div>
         <div id="btn-rsi" class="sort-btn" onclick="setSort('rsi')">RSI</div>
@@ -701,6 +708,19 @@
         setTimeout(hideTip, 5000);
     }
     function hideTip() { document.getElementById('tooltipToast').classList.remove('active'); }
+
+    function updateSearchClearButton() {
+        const search = document.getElementById('search');
+        document.getElementById('clear-search').classList.toggle('visible', Boolean(search.value));
+    }
+
+    function clearSearch() {
+        const search = document.getElementById('search');
+        search.value = '';
+        updateSearchClearButton();
+        render();
+        search.focus();
+    }
 
     function setFilter(f) {
         currentFilter = f;
@@ -1466,6 +1486,7 @@
 
     // Start
     load();
+    updateSearchClearButton();
     setInterval(load, 60000);
 </script>
 </body>
