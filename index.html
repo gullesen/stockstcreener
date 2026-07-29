@@ -100,6 +100,9 @@
         .info-box { background: var(--card); padding: 15px; border-radius: 15px; }
         .muted-mini { font-size: 11px; color: var(--secondary); font-weight: 600; margin-top: 4px; }
 
+        .company-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
+        .company-meta-item { background: var(--card); border-radius: 8px; color: var(--secondary); font-size: 11px; font-weight: 600; padding: 5px 8px; }
+
         /* 3-lags signalboks */
         .signal-box {
             background: var(--card);
@@ -235,7 +238,7 @@
         <button id="f-radar" class="filter-btn" onclick="setFilter('radar')">Radar</button>
     </div>
     <div class="search-wrap">
-        <input type="text" id="search" placeholder="Søk ticker eller navn..." oninput="render(); updateSearchClearButton()">
+        <input type="text" id="search" placeholder="Søk ticker, navn, sektor, land eller børs..." oninput="render(); updateSearchClearButton()">
         <button type="button" id="clear-search" class="clear-search" aria-label="Tøm søk" onclick="clearSearch()">×</button>
     </div>
     <div class="sort-row">
@@ -676,6 +679,10 @@
                             ...s,
                             Aksje: ticker,
                             Navn: escapeHtml(s.Navn),
+                            Sektor: escapeHtml(s.Sektor),
+                            Land: escapeHtml(s.Land),
+                            "Børs": escapeHtml(s["Børs"]),
+                            Valuta: escapeHtml(s.Valuta),
                             Trend_Signal: escapeHtml(s.Trend_Signal), Trend_Reason: escapeHtml(s.Trend_Reason), Trend_Icon: escapeHtml(s.Trend_Icon),
                             Setup_Signal: escapeHtml(s.Setup_Signal), Setup_Reason: escapeHtml(s.Setup_Reason), Setup_Icon: escapeHtml(s.Setup_Icon),
                             Risk_Signal: escapeHtml(s.Risk_Signal), Risk_Reason: escapeHtml(s.Risk_Reason), Risk_Icon: escapeHtml(s.Risk_Icon)
@@ -959,6 +966,7 @@
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="font-size:32px; font-weight:900;">${s.Aksje}</div>
                 <div style="font-size:14px; color:var(--secondary); font-weight:700;">${s.Navn || ""}</div>
+                <div class="company-meta">${[['Sektor', s.Sektor], ['Land', s.Land], ['Børs', s['Børs']], ['Valuta', s.Valuta]].map(([label, value]) => `<span class="company-meta-item"><b>${label}:</b> ${value || '–'}</span>`).join('')}</div>
                 <div style="font-size:26px; font-weight:800; margin-top:10px;">${Number(getLastPrice(s)).toFixed(2)}</div>
                 <div style="margin-top:8px;"><span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'}; font-size:12px;">Composite Score: ${composite ? `${composite.score}/${composite.maxScore}` : 'N/A'}${composite ? ` · ${composite.classification.label}` : ''}</span></div>
                 ${profitHtml}
@@ -1294,7 +1302,10 @@
             activeBtn.innerHTML = (sortNames[currentSort] || currentSort.toUpperCase()) + (isAscending ? "↑" : "↓");
         }
 
-        let filtered = stocks.filter(s => (s.Aksje.toUpperCase().includes(query) || (s.Navn && s.Navn.toUpperCase().includes(query))));
+        let filtered = stocks.filter(s =>
+            [s.Aksje, s.Navn, s.Sektor, s.Land, s['Børs']]
+                .some(value => String(value || '').toUpperCase().includes(query))
+        );
         if (currentFilter === 'mine') filtered = filtered.filter(s => myStocks.includes(s.Aksje));
         if (currentFilter === 'radar') filtered = filtered.filter(s => radarStocks.includes(s.Aksje));
 
