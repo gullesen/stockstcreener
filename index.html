@@ -1495,6 +1495,23 @@
         document.getElementById('detailPage').style.display = 'none';
     }
 
+    let detailSwipeStart = null;
+    const detailPage = document.getElementById('detailPage');
+    detailPage.addEventListener('touchstart', event => {
+        const touch = event.touches[0];
+        detailSwipeStart = touch.clientX <= 32 ? { x: touch.clientX, y: touch.clientY } : null;
+    }, { passive: true });
+    detailPage.addEventListener('touchend', event => {
+        if (!detailSwipeStart) return;
+        const touch = event.changedTouches[0];
+        const horizontalDistance = touch.clientX - detailSwipeStart.x;
+        const verticalDistance = Math.abs(touch.clientY - detailSwipeStart.y);
+        detailSwipeStart = null;
+        if (horizontalDistance >= 80 && horizontalDistance > verticalDistance * 1.5) {
+            closeDetail();
+        }
+    }, { passive: true });
+
     // Start
     load();
     updateSearchClearButton();
