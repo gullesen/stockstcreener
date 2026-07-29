@@ -275,12 +275,24 @@
 
 <script>
     let stocks = []; let currentSort = 'ticker'; let isAscending = true; let currentFilter = 'all';
-    let myStocks = JSON.parse(localStorage.getItem('myStocks')) || [];
-    let radarStocks = JSON.parse(localStorage.getItem('radarStocks')) || [];
-    let myGAVs = JSON.parse(localStorage.getItem('myGAVs')) || {};
-    let myNotes = JSON.parse(localStorage.getItem('myNotes')) || {};
-    let rsiAlerts = JSON.parse(localStorage.getItem('rsiAlerts')) || {};
-    let rsiAlertState = JSON.parse(localStorage.getItem('rsiAlertState')) || {};
+
+    // En ødelagt localStorage-verdi skal ikke hindre resten av appen i å starte.
+    function readLocalStorageJson(key, fallback) {
+        try {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : fallback;
+        } catch (_) {
+            localStorage.removeItem(key);
+            return fallback;
+        }
+    }
+
+    let myStocks = readLocalStorageJson('myStocks', []);
+    let radarStocks = readLocalStorageJson('radarStocks', []);
+    let myGAVs = readLocalStorageJson('myGAVs', {});
+    let myNotes = readLocalStorageJson('myNotes', {});
+    let rsiAlerts = readLocalStorageJson('rsiAlerts', {});
+    let rsiAlertState = readLocalStorageJson('rsiAlertState', {});
     let priceChart = null; let rsiChart = null;
     let currentTicker = null;
 
@@ -311,6 +323,18 @@
     function safeNum(v, fallback) {
         const n = Number(v);
         return Number.isFinite(n) ? n : fallback;
+    }
+
+    // Data fra Gist og localStorage skal alltid behandles som tekst når de vises i HTML.
+    // Hardkodet innhold (som tooltips) kan fortsatt bruke bevisst formatering.
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        })[char]);
     }
 
     function pctDiff(a, b) {
@@ -635,7 +659,22 @@
             const data = await res.json();
 
             if (data && data.aksjer) {
-                stocks = data.aksjer.filter(s => s.Aksje && s.Historikk && Array.isArray(s.Historikk));
+                stocks = data.aksjer
+                    .filter(s => s.Aksje && s.Historikk && Array.isArray(s.Historikk))
+                    .map(s => {
+                        // Ticker brukes også som argument i eksisterende inline-klikkbehandlere.
+                        // Behold kun gyldige tegn for en ticker, og escape all visningstekst.
+                        const ticker = String(s.Aksje).replace(/[^A-Za-z0-9._-]/g, '');
+                        return {
+                            ...s,
+                            Aksje: ticker,
+                            Navn: escapeHtml(s.Navn),
+                            Trend_Signal: escapeHtml(s.Trend_Signal), Trend_Reason: escapeHtml(s.Trend_Reason), Trend_Icon: escapeHtml(s.Trend_Icon),
+                            Setup_Signal: escapeHtml(s.Setup_Signal), Setup_Reason: escapeHtml(s.Setup_Reason), Setup_Icon: escapeHtml(s.Setup_Icon),
+                            Risk_Signal: escapeHtml(s.Risk_Signal), Risk_Reason: escapeHtml(s.Risk_Reason), Risk_Icon: escapeHtml(s.Risk_Icon)
+                        };
+                    })
+                    .filter(s => s.Aksje);
                 if (data.oppdatert) {
                     const tp = data.oppdatert.split(" ");
                     document.getElementById('ts-date').innerText = tp[0] || '--.--.--';
@@ -875,7 +914,7 @@
         if(!s) return;
 
         const gav = myGAVs[ticker] || "";
-        const note = myNotes[ticker] || "";
+        const note = escapeHtml(myNotes[ticker] || "");
 
         let profitHtml = "";
         if (gav) {
