@@ -55,6 +55,9 @@
         .sig-dot { font-size: 16px; line-height: 1; filter: saturate(1.1); }
 
         .list-badge { font-size: 9px; background: #3a3a3c; padding: 2px 5px; border-radius: 4px; color: var(--orange); font-weight: 900; }
+        .list-badge.radar { color: var(--blue); }
+        .stock-name-row { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
+        .stock-name { color: var(--secondary); font-size: 11px; font-weight: 600; }
         .score-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 800; margin-left: 6px; }
         .profit-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px;}
         .row-indicators { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #2c2c2e; }
@@ -1354,10 +1357,13 @@
             return `<div class="stock-card" onclick="openDetail('${s.Aksje}')">
                 <div class="row-top">
                     <div style="display:flex; flex-direction:column;">
-                        <span class="ticker">${s.Aksje} ${myStocks.includes(s.Aksje)?'<span class="list-badge">MINE</span>':''} ${profitHtml}
+                        <span class="ticker">${s.Aksje} ${profitHtml}
                             <span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'};">${composite ? `${composite.score}/${composite.maxScore} ${composite.classification.label}` : 'N/A'}</span>
                         </span>
-                        <span style="font-size:11px; color:var(--secondary); font-weight:600; margin-top:2px;">${s.Navn || ""}</span>
+                        <span class="stock-name-row">
+                            ${myStocks.includes(s.Aksje) ? '<span class="list-badge">MINE</span>' : radarStocks.includes(s.Aksje) ? '<span class="list-badge radar">RADAR</span>' : ''}
+                            <span class="stock-name">${s.Navn || ""}</span>
+                        </span>
                     </div>
                     <span class="price">
                         <span class="triple-icons" title="T = Trend · S = Setup · R = Risiko" aria-label="T = Trend, S = Setup, R = Risiko">
