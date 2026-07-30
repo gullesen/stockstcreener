@@ -30,7 +30,7 @@
         .update-label { font-size: 8px; color: var(--blue); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
         .update-time { font-size: 10px; color: var(--secondary); font-weight: 600; white-space: nowrap; }
 
-        input, .sort-btn, .filter-btn, textarea {
+        input, select, .sort-btn, .filter-btn, textarea {
             width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--card); color: var(--text);
             font-size: 14px; margin-bottom: 8px; box-sizing: border-box; outline: none;
         }
@@ -42,12 +42,15 @@
         .filter-btn { flex: 1; font-weight: 600; }
         .active-filter { background: var(--blue) !important; }
         .sort-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+        .sector-filter { margin: 0; min-width: 0; font-weight: 600; text-overflow: ellipsis; }
         .active-sort { border: 1px solid var(--blue) !important; color: var(--blue); }
 
         .stock-card { background: var(--card); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
-        .row-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-        .ticker { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
-        .price { font-size: 20px; font-weight: 700; display:flex; align-items:center; gap:10px; }
+        .row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+        .stock-card-main { flex: 1; min-width: 0; }
+        .ticker { font-size: 19px; font-weight: 800; display: flex; align-items: center; gap: 5px; min-width: 0; white-space: nowrap; }
+        .ticker-symbol { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .price { font-size: 20px; font-weight: 700; display:flex; align-items:center; gap:10px; white-space: nowrap; flex-shrink: 0; }
 
         .triple-icons { display:inline-flex; gap:4px; align-items:center; }
         .signal-mini { display: inline-flex; align-items: center; gap: 2px; }
@@ -56,8 +59,8 @@
 
         .list-badge { font-size: 9px; background: #3a3a3c; padding: 2px 5px; border-radius: 4px; color: var(--orange); font-weight: 900; }
         .list-badge.radar { color: var(--blue); }
-        .stock-name-row { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
-        .stock-name { color: var(--secondary); font-size: 11px; font-weight: 600; }
+        .stock-name-row { display: flex; align-items: center; gap: 5px; margin-top: 2px; min-width: 0; }
+        .stock-name { color: var(--secondary); font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
         .score-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 800; margin-left: 6px; }
         .profit-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px;}
         .row-indicators { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #2c2c2e; }
@@ -245,7 +248,7 @@
         <button id="f-radar" class="filter-btn" onclick="setFilter('radar')">Radar</button>
     </div>
     <div class="search-wrap">
-        <input type="text" id="search" placeholder="Søk ticker, navn, sektor, land eller børs..." oninput="render(); updateSearchClearButton()">
+        <input type="text" id="search" placeholder="Søk ticker, navn eller sektor…" oninput="render(); updateSearchClearButton()">
         <button type="button" id="clear-search" class="clear-search" aria-label="Tøm søk" onclick="clearSearch()">×</button>
     </div>
     <div class="sort-row">
@@ -256,6 +259,9 @@
         <div id="btn-rs" class="sort-btn" onclick="setSort('rs')">RS 3M</div>
         <div id="btn-atr" class="sort-btn" onclick="setSort('atr')">ATR %</div>
         <div id="btn-ticker" class="sort-btn" onclick="setSort('ticker')">Navn</div>
+        <select id="sector-filter" class="sector-filter" aria-label="Filtrer på sektor" onchange="setSector(this.value)">
+            <option value="">Alle sektorer</option>
+        </select>
     </div>
 </div>
 
@@ -291,7 +297,7 @@
 <div id="tooltipToast" onclick="hideTip()"></div>
 
 <script>
-    let stocks = []; let currentSort = 'ticker'; let isAscending = true; let currentFilter = 'all';
+    let stocks = []; let currentSort = 'ticker'; let isAscending = true; let currentFilter = 'all'; let currentSector = '';
 
     // En ødelagt localStorage-verdi skal ikke hindre resten av appen i å starte.
     function readLocalStorageJson(key, fallback) {
@@ -696,6 +702,7 @@
                         };
                     })
                     .filter(s => s.Aksje);
+                populateSectorFilter();
                 if (data.oppdatert) {
                     const tp = data.oppdatert.split(" ");
                     document.getElementById('ts-date').innerText = tp[0] || '--.--.--';
@@ -712,6 +719,25 @@
                     <div style="color:var(--secondary); font-size:12px; margin-top:8px;">Sjekk at DATA_URL er riktig og at JSON er tilgjengelig.</div>
                 </div>`;
         }
+    }
+
+    function cleanMetadata(value) {
+        return String(value ?? '').trim();
+    }
+
+    function populateSectorFilter() {
+        const select = document.getElementById('sector-filter');
+        if (!select) return;
+        const sectors = [...new Set(stocks.map(s => cleanMetadata(s.Sektor)).filter(Boolean))]
+            .sort((a, b) => a.localeCompare(b, 'no'));
+        if (currentSector && !sectors.includes(currentSector)) currentSector = '';
+        select.replaceChildren(new Option('Alle sektorer', ''), ...sectors.map(sector => new Option(sector, sector)));
+        select.value = currentSector;
+    }
+
+    function setSector(sector) {
+        currentSector = sector;
+        render();
     }
 
     function showTip(e, key) {
@@ -968,13 +994,21 @@
 
         const sigs = computeThreeSignals(s);
         const composite = computeCompositeScore(s, index);
+        const isNorwegian = ['norge', 'norway'].includes(cleanMetadata(s.Land).toLocaleLowerCase());
+        const detailMeta = [
+            ['Sektor', s.Sektor],
+            ...(!isNorwegian ? [['Land', s.Land], ['Børs', s['Børs']], ['Valuta', s.Valuta]] : [])
+        ].filter(([, value]) => cleanMetadata(value));
+        const currencyLabel = !isNorwegian && cleanMetadata(s.Valuta)
+            ? `<span style="font-size:13px; color:var(--secondary); margin-left:5px;">${s.Valuta}</span>`
+            : '';
 
         document.getElementById('detailHeaderInfo').innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
                 <div style="font-size:32px; font-weight:900;">${s.Aksje}</div>
                 <div style="font-size:14px; color:var(--secondary); font-weight:700;">${s.Navn || ""}</div>
-                <div class="company-meta">${[['Sektor', s.Sektor], ['Land', s.Land], ['Børs', s['Børs']], ['Valuta', s.Valuta]].map(([label, value]) => `<span class="company-meta-item"><b>${label}:</b> ${value || '–'}</span>`).join('')}</div>
-                <div style="font-size:26px; font-weight:800; margin-top:10px;">${Number(getLastPrice(s)).toFixed(2)}</div>
+                ${detailMeta.length ? `<div class="company-meta">${detailMeta.map(([label, value]) => `<span class="company-meta-item"><b>${label}:</b> ${value}</span>`).join('')}</div>` : ''}
+                <div style="font-size:26px; font-weight:800; margin-top:10px;">${Number(getLastPrice(s)).toFixed(2)}${currencyLabel}</div>
                 <div style="margin-top:8px;"><span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'}; font-size:12px;">Composite Score: ${composite ? `${composite.score}/${composite.maxScore}` : 'N/A'}${composite ? ` · ${composite.classification.label}` : ''}</span></div>
                 ${profitHtml}
             </div>
@@ -1300,7 +1334,7 @@
     }
 
     function render() {
-        const query = document.getElementById('search').value.toUpperCase();
+        const query = document.getElementById('search').value.trim().toLocaleLowerCase();
         document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active-sort'));
         const activeBtn = document.getElementById('btn-' + currentSort);
         if(activeBtn) {
@@ -1310,9 +1344,10 @@
         }
 
         let filtered = stocks.filter(s =>
-            [s.Aksje, s.Navn, s.Sektor, s.Land, s['Børs']]
-                .some(value => String(value || '').toUpperCase().includes(query))
+            [s.Aksje, s.Navn, s.Sektor]
+                .some(value => cleanMetadata(value).toLocaleLowerCase().includes(query))
         );
+        if (currentSector) filtered = filtered.filter(s => cleanMetadata(s.Sektor) === currentSector);
         if (currentFilter === 'mine') filtered = filtered.filter(s => myStocks.includes(s.Aksje));
         if (currentFilter === 'radar') filtered = filtered.filter(s => radarStocks.includes(s.Aksje));
 
@@ -1356,8 +1391,8 @@
 
             return `<div class="stock-card" onclick="openDetail('${s.Aksje}')">
                 <div class="row-top">
-                    <div style="display:flex; flex-direction:column;">
-                        <span class="ticker">${s.Aksje} ${profitHtml}
+                    <div class="stock-card-main" style="display:flex; flex-direction:column;">
+                        <span class="ticker"><span class="ticker-symbol">${s.Aksje}</span>${profitHtml}
                             <span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'};">${composite ? `${composite.score}/${composite.maxScore} ${composite.classification.label}` : 'N/A'}</span>
                         </span>
                         <span class="stock-name-row">
