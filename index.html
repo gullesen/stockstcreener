@@ -109,6 +109,35 @@
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
         .info-box { background: var(--card); padding: 15px; border-radius: 15px; }
         .muted-mini { font-size: 11px; color: var(--secondary); font-weight: 600; margin-top: 4px; }
+        .score-explanation, .classification-explanations {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 18px;
+            border: 1px solid #2c2c2e;
+        }
+        .score-explanation-title { font-size: 14px; font-weight: 900; margin-bottom: 8px; }
+        .score-explanation-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .score-explanation-score { font-size: 20px; font-weight: 900; }
+        .score-explanation-version { font-size: 10px; color: var(--secondary); font-weight: 700; text-align: right; overflow-wrap: anywhere; }
+        .score-disclaimer { font-size: 12px; color: var(--secondary); line-height: 1.4; margin: 10px 0; }
+        .score-explanation details { border-top: 1px solid #2c2c2e; padding-top: 10px; }
+        .score-explanation summary { cursor: pointer; color: var(--blue); font-size: 12px; font-weight: 800; }
+        .score-breakdown { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        .score-breakdown th { color: var(--secondary); font-size: 10px; text-align: left; text-transform: uppercase; }
+        .score-breakdown th:last-child, .score-breakdown td:last-child { text-align: right; white-space: nowrap; }
+        .score-breakdown td { padding: 8px 0; border-bottom: 1px solid #2c2c2e; vertical-align: top; }
+        .score-breakdown tr:last-child td { border-bottom: none; }
+        .score-breakdown-reason { display: block; color: var(--secondary); line-height: 1.35; margin-top: 3px; }
+        .score-adjustments-title { color: var(--secondary); font-size: 10px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; margin: 12px 0 2px; }
+        .classification-explanations-title { font-size: 10px; color: var(--secondary); font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 10px; }
+        .classification-explanation { padding: 10px 0; border-bottom: 1px solid #2c2c2e; }
+        .classification-explanation:last-child { border-bottom: none; padding-bottom: 0; }
+        .classification-explanation-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 900; }
+        .classification-explanation-value { color: var(--blue); text-align: right; overflow-wrap: anywhere; }
+        .classification-explanation-reason { color: var(--secondary); font-size: 12px; line-height: 1.35; margin-top: 5px; }
+        .classification-explanation-facts { color: var(--secondary); font-size: 11px; line-height: 1.35; margin: 6px 0 0; padding-left: 16px; }
+        .score-explanation-unavailable { color: var(--secondary); font-size: 12px; margin-top: 8px; }
 
         .company-meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 12px; }
         .company-meta-item { background: var(--card); border-radius: 8px; color: var(--secondary); font-size: 11px; font-weight: 600; padding: 5px 8px; }
@@ -967,6 +996,102 @@
     }
 
 
+    function explanationText(value) {
+        if (typeof value !== 'string' && typeof value !== 'number') return '';
+        const text = String(value).trim();
+        return text ? escapeHtml(text) : '';
+    }
+
+    function explanationNumber(value) {
+        if (value === null || value === '' || typeof value === 'boolean') return null;
+        const number = Number(value);
+        return Number.isFinite(number) ? number : null;
+    }
+
+    function formatExplanationNumber(value) {
+        return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, '');
+    }
+
+    function formatExplanationPoints(value) {
+        const number = explanationNumber(value);
+        if (number === null) return '';
+        return `${number > 0 ? '+' : number < 0 ? '−' : ''}${formatExplanationNumber(Math.abs(number))}`;
+    }
+
+    function getExplanationItems(items, amountKey) {
+        if (!Array.isArray(items)) return [];
+        return items.map(item => {
+            if (!item || typeof item !== 'object') return null;
+            const label = explanationText(item.label) || explanationText(item.key);
+            const amount = explanationNumber(item[amountKey]);
+            if (!label || amount === null) return null;
+            return { label, amount, reason: explanationText(item.reason) };
+        }).filter(Boolean);
+    }
+
+    function renderExplanationRows(items) {
+        return items.map(item => `
+            <tr>
+                <td>${item.label}${item.reason ? `<span class="score-breakdown-reason">${item.reason}</span>` : ''}</td>
+                <td>${formatExplanationPoints(item.amount)}</td>
+            </tr>
+        `).join('');
+    }
+
+    function renderScoreExplanation(stock, composite) {
+        const explanation = stock?.ScoreForklaring;
+        const hasExplanation = explanation && typeof explanation === 'object' && !Array.isArray(explanation);
+        const finalScore = hasExplanation ? explanationNumber(explanation.final_score) : null;
+        const displayedScore = finalScore !== null
+            ? formatExplanationNumber(finalScore)
+            : composite ? `${composite.score}/${composite.maxScore}` : 'N/A';
+        const version = hasExplanation ? explanationText(explanation.score_version) : '';
+        const components = hasExplanation ? getExplanationItems(explanation.components, 'points') : [];
+        const adjustments = hasExplanation ? getExplanationItems(explanation.adjustments, 'amount') : [];
+        const breakdown = components.length || adjustments.length;
+
+        return `
+            <section class="score-explanation">
+                <div class="score-explanation-title">Slik er den tekniske scoren beregnet</div>
+                <div class="score-explanation-summary">
+                    <span class="score-explanation-score">Composite Score: ${displayedScore}</span>
+                    ${version ? `<span class="score-explanation-version">${version}</span>` : ''}
+                </div>
+                <div class="score-disclaimer">Composite Score er en teknisk rangeringsscore basert på historiske kurs- og volumdata. Den er ikke et kjøpssignal og vurderer ikke selskapskvalitet, verdsettelse, nyheter eller samlet investeringsrisiko.</div>
+                ${hasExplanation && breakdown ? `
+                    <details>
+                        <summary>Se poengbidrag og justeringer</summary>
+                        ${components.length ? `<table class="score-breakdown" aria-label="Poengbidrag i Composite Score"><thead><tr><th>Komponent</th><th>Bidrag</th></tr></thead><tbody>${renderExplanationRows(components)}</tbody></table>` : ''}
+                        ${adjustments.length ? `<div class="score-adjustments-title">Justeringer</div><table class="score-breakdown" aria-label="Justeringer i Composite Score"><tbody>${renderExplanationRows(adjustments)}</tbody></table>` : ''}
+                    </details>` : hasExplanation ? '' : '<div class="score-explanation-unavailable">Detaljert scoreforklaring er ikke tilgjengelig for dette datasettet.</div>'}
+            </section>
+        `;
+    }
+
+    function renderClassificationExplanations(stock) {
+        const explanations = stock?.KlassifiseringForklaring;
+        if (!explanations || typeof explanations !== 'object' || Array.isArray(explanations)) return '';
+        const labels = { trend: 'Trend', setup: 'Setup', risiko: 'Teknisk risiko' };
+        const rows = Object.entries(labels).map(([key, label]) => {
+            const explanation = explanations[key];
+            if (!explanation || typeof explanation !== 'object' || Array.isArray(explanation)) return '';
+            const value = explanationText(explanation.value);
+            const reason = explanationText(explanation.reason);
+            const facts = Array.isArray(explanation.facts)
+                ? explanation.facts.map(explanationText).filter(Boolean)
+                : [];
+            if (!value && !reason && !facts.length) return '';
+            return `
+                <div class="classification-explanation">
+                    <div class="classification-explanation-head"><span>${label}</span>${value ? `<span class="classification-explanation-value">${value}</span>` : ''}</div>
+                    ${reason ? `<div class="classification-explanation-reason">${reason}</div>` : ''}
+                    ${facts.length ? `<ul class="classification-explanation-facts">${facts.map(fact => `<li>${fact}</li>`).join('')}</ul>` : ''}
+                </div>
+            `;
+        }).filter(Boolean).join('');
+        return rows ? `<section class="classification-explanations"><div class="classification-explanations-title">Backendens klassifiseringsforklaringer</div>${rows}</section>` : '';
+    }
+
     function openDetail(ticker) {
         currentTicker = ticker;
         const s = stocks.find(x => x.Aksje === ticker);
@@ -1023,6 +1148,9 @@
                 <div class="info-box" onclick="showTip(event, 'rs')"><div class="label">RS 3M <i class="info-i">ⓘ</i></div><div class="val" style="color:${safeNum(s.RS_3m_vs_OSEBX, 0) >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(s.RS_3m_vs_OSEBX, 1, '%')}</div></div>
                 <div class="info-box"><div class="label">Composite</div><div class="val" style="color:${composite ? composite.classification.color : 'var(--secondary)'};">${composite ? `${composite.score}/${composite.maxScore} · ${composite.classification.label}` : 'N/A'}</div></div>
             </div>
+
+            ${renderScoreExplanation(s, composite)}
+            ${renderClassificationExplanations(s)}
 
             <div class="signal-box">
                 <div class="signal-title">Signaler</div>
