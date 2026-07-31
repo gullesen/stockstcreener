@@ -7,15 +7,63 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
+    <script>
+        (() => {
+            try {
+                const savedTheme = localStorage.getItem('stockscreener-theme');
+                document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark';
+            } catch (_) {
+                document.documentElement.dataset.theme = 'dark';
+            }
+        })();
+    </script>
+
     <!-- ✅ Grunnoppsett for linjediagram -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <style>
         :root {
-            --bg: #000000; --card: #1c1c1e; --text: #ffffff; --secondary: #8e8e93;
-            --green: #32d74b; --red: #ff453a; --blue: #0a84ff; --orange: #ff9f0a;
+            --bg: #000000;
+            --card: #1c1c1e;
+            --text: #ffffff;
+            --secondary: #8e8e93;
+            --green: #32d74b;
+            --red: #ff453a;
+            --blue: #0a84ff;
+            --orange: #ff9f0a;
             --yellow: #ffd60a;
+            --border: #2c2c2e;
+            --control: #3a3a3c;
+            --surface-muted: rgba(255, 255, 255, 0.02);
+            --detail-sticky-bg: rgba(0, 0, 0, 0.96);
+            --detail-shadow: rgba(0, 0, 0, 0.24);
+            --toast-shadow: rgba(0, 0, 0, 0.6);
+            --chart-canvas: #1c1c1e;
+            --chart-grid: #2c2c2e;
+            --chart-axis: #8e8e93;
+            --chart-reference: #ffffff;
+        }
+        html[data-theme="light"] {
+            --bg: #f2f2f7;
+            --card: #ffffff;
+            --text: #1c1c1e;
+            --secondary: #6d6d73;
+            --green: #248a3d;
+            --red: #d70015;
+            --blue: #007aff;
+            --orange: #b95000;
+            --yellow: #8a6d00;
+            --border: #d1d1d6;
+            --control: #e5e5ea;
+            --surface-muted: rgba(0, 0, 0, 0.025);
+            --detail-sticky-bg: rgba(242, 242, 247, 0.96);
+            --detail-shadow: rgba(0, 0, 0, 0.08);
+            --toast-shadow: rgba(0, 0, 0, 0.16);
+            --chart-canvas: #ffffff;
+            --chart-grid: #d1d1d6;
+            --chart-axis: #6d6d73;
+            --chart-reference: #8e8e93;
         }
         body {
             font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text);
@@ -25,6 +73,27 @@
         .sticky-header.compact { padding: 6px 0; }
         .sticky-header.compact .header-top, .sticky-header.compact .filter-row, .sticky-header.compact .sort-row { display: none; }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .header-actions { display: inline-flex; align-items: flex-start; gap: 8px; min-width: 0; }
+        .theme-toggle {
+            display: inline-grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            margin: 0;
+            padding: 0;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            background: var(--card);
+            color: var(--blue);
+            cursor: pointer;
+            flex: 0 0 auto;
+        }
+        .theme-toggle:hover { background: var(--control); }
+        .theme-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+        .theme-icon { display: block; width: 16px; height: 16px; }
+        .theme-icon-sun { display: none; }
+        html[data-theme="light"] .theme-icon-sun { display: block; }
+        html[data-theme="light"] .theme-icon-moon { display: none; }
         h1 { font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         .timestamp-container { text-align: right; line-height: 1.2; }
         .update-label { font-size: 8px; color: var(--blue); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; display: block; }
@@ -36,7 +105,7 @@
         }
         .search-wrap { position: relative; margin-bottom: 8px; }
         .search-wrap input { margin-bottom: 0; padding-right: 44px; }
-        .clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; width: 30px; height: 30px; border: none; border-radius: 50%; background: #3a3a3c; color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; }
+        .clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; width: 30px; height: 30px; border: none; border-radius: 50%; background: var(--control); color: var(--text); font-size: 22px; line-height: 1; cursor: pointer; }
         .clear-search.visible { display: block; }
         .filter-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .filter-btn { flex: 1; font-weight: 600; }
@@ -106,7 +175,7 @@
 
 
         .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }.filter-grid select, .filter-grid input { margin: 0; min-width: 0; }
-        .preset-row { display: flex; gap: 7px; margin-top: 8px; }.preset-btn { flex: 1; border: 1px solid #3a3a3c; border-radius: 9px; background: transparent; color: var(--text); padding: 9px 7px; font-size: 11px; font-weight: 750; }
+        .preset-row { display: flex; gap: 7px; margin-top: 8px; }.preset-btn { flex: 1; border: 1px solid var(--control); border-radius: 9px; background: transparent; color: var(--text); padding: 9px 7px; font-size: 11px; font-weight: 750; }
         .filter-note { color: var(--secondary); font-size: 10px; line-height: 1.35; margin-top: 8px; }
         .compact-signal { color:var(--secondary); font-size:10px; font-weight:750; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:4px; flex-basis:100%; order:3; }.stock-card-main { order:1; }.price { order:2; }
         @media (max-width: 430px) {
@@ -114,6 +183,8 @@
             .main-filter-control select { padding: 10px 7px; font-size: 12px; }
             .sort-select-wrap { grid-template-columns: minmax(0, 1fr) 28px; gap: 3px; }
             .filter-grid { grid-template-columns: 1fr; }
+            .header-actions { gap: 6px; }
+            .theme-toggle { width: 30px; height: 30px; }
             .stock-card { padding: 14px; }
             .row-indicators { gap: 5px; }
             .mini-stat .val { font-size: 12px; }
@@ -123,7 +194,7 @@
         .signal-summary,
         .scenario-card {
             background: var(--card);
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
             border-radius: 15px;
             padding: 15px;
             margin: 0 0 18px;
@@ -141,7 +212,7 @@
             grid-template-columns: minmax(0, 1fr) auto;
             gap: 12px;
             padding: 10px 0;
-            border-bottom: 1px solid #2c2c2e;
+            border-bottom: 1px solid var(--border);
             font-size: 13px;
         }
         .signal-summary-row:last-of-type { border-bottom: 0; }
@@ -157,9 +228,9 @@
             grid-template-columns: minmax(0, 1fr) auto;
             gap: 3px 8px;
             padding: 9px;
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.02);
+            background: var(--surface-muted);
             font-size: 12px;
         }
         .technical-average-label { color: var(--secondary); font-weight: 800; }
@@ -228,13 +299,13 @@
         .signal-mini-label { color: var(--secondary); font-size: 8px; font-weight: 900; }
         .sig-dot { font-size: 16px; line-height: 1; filter: saturate(1.1); }
 
-        .list-badge { font-size: 9px; background: #3a3a3c; padding: 2px 5px; border-radius: 4px; color: var(--orange); font-weight: 900; }
+        .list-badge { font-size: 9px; background: var(--control); padding: 2px 5px; border-radius: 4px; color: var(--orange); font-weight: 900; }
         .list-badge.radar { color: var(--blue); }
         .stock-name-row { display: flex; align-items: center; gap: 5px; margin-top: 2px; min-width: 0; }
         .stock-name { color: var(--secondary); font-size: 11px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
         .score-badge { font-size: 10px; padding: 2px 6px; border-radius: 6px; font-weight: 800; margin-left: 6px; }
         .profit-badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px;}
-        .row-indicators { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid #2c2c2e; }
+        .row-indicators { display: flex; justify-content: space-between; padding-top: 10px; border-top: 1px solid var(--border); }
         .mini-stat { display: flex; flex-direction: column; }
         .label { font-size: 9px; color: var(--secondary); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
         .val { font-size: 14px; font-weight: 700; }
@@ -250,9 +321,9 @@
             gap: 12px;
             margin: 0 -20px 20px;
             padding: max(10px, env(safe-area-inset-top)) 20px 10px;
-            background: rgba(0, 0, 0, 0.96);
-            border-bottom: 1px solid #2c2c2e;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+            background: var(--detail-sticky-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 8px 16px var(--detail-shadow);
         }
         .detail-back-button {
             min-height: 36px;
@@ -283,7 +354,7 @@
 
         .chart-section {
             background: var(--card);
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
             border-radius: 18px;
             margin-bottom: 20px;
             overflow: hidden;
@@ -327,7 +398,7 @@
         }
         .signal-history-section {
             background: var(--card);
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
             border-radius: 18px;
             margin-bottom: 18px;
             overflow: hidden;
@@ -370,7 +441,7 @@
         }
         .signal-history-start { margin: 12px 0 0; }
         .signal-history-event {
-            border-top: 1px solid #2c2c2e;
+            border-top: 1px solid var(--border);
             padding: 0;
         }
         .signal-history-event summary {
@@ -416,7 +487,7 @@
             overflow-wrap: anywhere;
         }
         .signal-history-changes {
-            border-top: 1px solid #2c2c2e;
+            border-top: 1px solid var(--border);
             margin: 0 0 13px;
             padding-top: 10px;
         }
@@ -464,24 +535,24 @@
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 18px;
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
         }
         .score-explanation-title { font-size: 14px; font-weight: 900; margin-bottom: 8px; }
         .score-explanation-summary { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
         .score-explanation-score { font-size: 20px; font-weight: 900; }
         .score-explanation-version { font-size: 10px; color: var(--secondary); font-weight: 700; text-align: right; overflow-wrap: anywhere; }
         .score-disclaimer { font-size: 12px; color: var(--secondary); line-height: 1.4; margin: 10px 0; }
-        .score-explanation details { border-top: 1px solid #2c2c2e; padding-top: 10px; }
+        .score-explanation details { border-top: 1px solid var(--border); padding-top: 10px; }
         .score-explanation summary { cursor: pointer; color: var(--blue); font-size: 12px; font-weight: 800; }
         .score-breakdown { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         .score-breakdown th { color: var(--secondary); font-size: 10px; text-align: left; text-transform: uppercase; }
         .score-breakdown th:last-child, .score-breakdown td:last-child { text-align: right; white-space: nowrap; }
-        .score-breakdown td { padding: 8px 0; border-bottom: 1px solid #2c2c2e; vertical-align: top; }
+        .score-breakdown td { padding: 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
         .score-breakdown tr:last-child td { border-bottom: none; }
         .score-breakdown-reason { display: block; color: var(--secondary); line-height: 1.35; margin-top: 3px; }
         .score-adjustments-title { color: var(--secondary); font-size: 10px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; margin: 12px 0 2px; }
         .classification-explanations-title { font-size: 10px; color: var(--secondary); font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 10px; }
-        .classification-explanation { padding: 10px 0; border-bottom: 1px solid #2c2c2e; }
+        .classification-explanation { padding: 10px 0; border-bottom: 1px solid var(--border); }
         .classification-explanation:last-child { border-bottom: none; padding-bottom: 0; }
         .classification-explanation-head { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; font-weight: 900; }
         .classification-explanation-value { color: var(--blue); text-align: right; overflow-wrap: anywhere; }
@@ -521,7 +592,7 @@
         }
         .company-info-card {
             background: var(--card);
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
             border-radius: 15px;
             padding: 15px;
             margin: 0 0 10px;
@@ -539,7 +610,7 @@
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 12px;
             padding: 10px 0;
-            border-bottom: 1px solid #2c2c2e;
+            border-bottom: 1px solid var(--border);
             font-size: 13px;
         }
         .company-info-row:last-child { border-bottom: 0; }
@@ -560,7 +631,7 @@
             border-radius: 15px;
             padding: 14px 15px;
             margin-bottom: 18px;
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
         }
         .signal-title {
             font-size: 10px;
@@ -583,18 +654,18 @@
             border-radius: 999px;
             font-size: 12px;
             font-weight: 900;
-            border: 1px solid #3a3a3c;
+            border: 1px solid var(--control);
             white-space: nowrap;
         }
 
         .tech-list { background: var(--card); border-radius: 15px; padding: 5px 15px; margin-bottom: 20px; }
-        .tech-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #2c2c2e; font-size: 14px; }
+        .tech-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
         .key-levels-card {
             background: var(--card);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 20px;
-            border: 1px solid #2c2c2e;
+            border: 1px solid var(--border);
         }
         .key-levels-title {
             font-size: 10px;
@@ -612,8 +683,8 @@
             gap: 12px;
             padding: 12px 13px;
             border-radius: 12px;
-            border: 1px solid #2c2c2e;
-            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            background: var(--surface-muted);
         }
         .key-level-row.primary { padding: 14px 13px; }
         .key-level-row.resistance {
@@ -650,24 +721,24 @@
         .rel-strength-box { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 20px; }
         .rel-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; text-align: center; }
         .list-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
-        .action-btn { padding: 14px; border-radius: 12px; border: 1px solid #3a3a3c; background: transparent; color: white; font-size: 13px; font-weight: 600; }
+        .action-btn { padding: 14px; border-radius: 12px; border: 1px solid var(--control); background: transparent; color: var(--text); font-size: 13px; font-weight: 600; }
         .time-row { display: flex; justify-content: space-between; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 15px; }
         .time-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; font-weight: 700; color: var(--secondary); border-radius: 8px; }
-        .time-btn.active { background: #3a3a3c; color: white; }
-        .alert-section { background: var(--card); border-radius: 18px; padding: 16px; margin-top: 10px; border: 1px solid #2c2c2e; }
+        .time-btn.active { background: var(--control); color: var(--text); }
+        .alert-section { background: var(--card); border-radius: 18px; padding: 16px; margin-top: 10px; border: 1px solid var(--border); }
         .alert-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
         .alert-input, .alert-select { margin: 0; max-width: 120px; text-align: center; font-weight: 700; }
         .alert-helper { font-size: 12px; color: var(--secondary); margin-top: 8px; line-height: 1.35; }
         .alert-status { font-size: 12px; color: var(--blue); font-weight: 600; margin-top: 8px; }
-        .alert-btn { background: transparent; border: 1px solid #3a3a3c; color: var(--text); border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+        .alert-btn { background: transparent; border: 1px solid var(--control); color: var(--text); border-radius: 10px; padding: 10px 12px; font-size: 12px; font-weight: 700; white-space: nowrap; }
         .alert-page-header { text-align: center; margin-bottom: 20px; }
         .alert-page-title { font-size: 30px; font-weight: 900; }
         .alert-page-subtitle { font-size: 14px; color: var(--secondary); font-weight: 700; margin-top: 4px; }
         .user-data-section { background: var(--card); border-radius: 18px; padding: 20px; margin-top: 10px; }
         #tooltipToast {
-            position: fixed; bottom: -150px; left: 20px; right: 20px; background: #2c2c2e; color: white;
+            position: fixed; bottom: -150px; left: 20px; right: 20px; background: var(--border); color: var(--text);
             padding: 18px; border-radius: 14px; z-index: 3000; transition: bottom 0.4s ease;
-            border-left: 5px solid var(--blue); box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-size: 14px;
+            border-left: 5px solid var(--blue); box-shadow: 0 10px 30px var(--toast-shadow); font-size: 14px;
         }
         #tooltipToast.active { bottom: 40px; }
     </style>
@@ -677,10 +748,16 @@
 <div class="sticky-header">
     <div class="header-top">
         <h1>StockScreener</h1>
-        <div class="timestamp-container">
-            <span class="update-label">Sist oppdatert</span>
-            <div id="ts-date" class="update-time">--.--.--</div>
-            <div id="ts-time" class="update-time">--:--</div>
+        <div class="header-actions">
+            <button id="theme-toggle" type="button" class="theme-toggle" onclick="toggleTheme()" aria-label="Aktiver lyst tema" aria-pressed="false" title="Aktiver lyst tema">
+                <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.1A8.5 8.5 0 0 1 8.9 3.6 8.5 8.5 0 1 0 20.4 15.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+            <div class="timestamp-container">
+                <span class="update-label">Sist oppdatert</span>
+                <div id="ts-date" class="update-time">--.--.--</div>
+                <div id="ts-time" class="update-time">--:--</div>
+            </div>
         </div>
     </div>
     <div class="filter-row">
@@ -838,6 +915,41 @@
             localStorage.removeItem(key);
             return fallback;
         }
+    }
+
+    function getThemeColor(name, fallback) {
+        const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        return value || fallback;
+    }
+
+    function syncThemeToggle() {
+        const toggle = document.getElementById('theme-toggle');
+        if (!toggle) return;
+        const isLight = document.documentElement.dataset.theme === 'light';
+        const nextThemeLabel = isLight ? 'Aktiver mørkt tema' : 'Aktiver lyst tema';
+        toggle.setAttribute('aria-label', nextThemeLabel);
+        toggle.setAttribute('title', nextThemeLabel);
+        toggle.setAttribute('aria-pressed', String(isLight));
+    }
+
+    function applyTheme(theme, persist = false) {
+        const nextTheme = theme === 'light' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = nextTheme;
+        if (persist) {
+            try {
+                localStorage.setItem('stockscreener-theme', nextTheme);
+            } catch (_) {}
+        }
+        syncThemeToggle();
+        const chartContent = document.getElementById('chart-content');
+        if (currentTicker && chartContent && !chartContent.hidden) {
+            requestAnimationFrame(() => updateChart(currentChartPeriod, currentTicker));
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+        applyTheme(currentTheme === 'light' ? 'dark' : 'light', true);
     }
 
     let myStocks = readLocalStorageJson('myStocks', []);
@@ -1899,7 +2011,7 @@
                     <div class="signal-summary-title">Avkastning og markedsposisjon</div>
                     <div class="row-indicators">${returns}</div>
                     <div class="score-disclaimer">52u lav ${Number.isFinite(low) ? numberOrDash(low, 1) : '–'} · Siste kurs ${Number.isFinite(price) ? numberOrDash(price, 1) : '–'} · 52u høy ${Number.isFinite(high) ? numberOrDash(high, 1) : '–'}</div>
-                    ${Number.isFinite(position) ? `<div style="height:6px;background:#3a3a3c;border-radius:4px;"><div style="width:${position}%;height:100%;background:var(--blue);border-radius:4px;"></div></div><div class="score-disclaimer">${positionText} · ${numberOrDash(Math.max(0, ((high-price)/high)*100),1)} % under 52u høy</div>` : `<div class="score-disclaimer">${positionText}</div>`}
+                    ${Number.isFinite(position) ? `<div style="height:6px;background:var(--control);border-radius:4px;"><div style="width:${position}%;height:100%;background:var(--blue);border-radius:4px;"></div></div><div class="score-disclaimer">${positionText} · ${numberOrDash(Math.max(0, ((high-price)/high)*100),1)} % under 52u høy</div>` : `<div class="score-disclaimer">${positionText}</div>`}
                 </section>
                 <div class="score-disclaimer">Fargene viser teknisk retning i de enkelte indikatorene, ikke et selvstendig kjøpssignal.</div>
             </section>
@@ -1940,7 +2052,7 @@
         if (existing) existing.destroy();
     }
 
-    function drawCanvasFallback(canvasId, values, { min = null, max = null, color = '#0a84ff', extraLines = [] } = {}) {
+    function drawCanvasFallback(canvasId, values, { min = null, max = null, color = null, extraLines = [] } = {}) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -1954,7 +2066,7 @@
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
         ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = '#1c1c1e';
+        ctx.fillStyle = getThemeColor('--chart-canvas', '#1c1c1e');
         ctx.fillRect(0, 0, width, height);
 
         const clean = values.map(v => normNumber(v)).filter(Number.isFinite);
@@ -1968,7 +2080,7 @@
         const innerW = width - pad * 2;
         const innerH = height - pad * 2;
 
-        ctx.strokeStyle = '#2c2c2e';
+        ctx.strokeStyle = getThemeColor('--chart-grid', '#2c2c2e');
         ctx.lineWidth = 1;
         for (const lineVal of extraLines) {
             const y = pad + (1 - (lineVal - vMin) / (vMax - vMin)) * innerH;
@@ -1980,7 +2092,7 @@
         }
         ctx.setLineDash([]);
 
-        ctx.strokeStyle = color;
+        ctx.strokeStyle = color || getThemeColor('--blue', '#0a84ff');
         ctx.lineWidth = 2;
         ctx.beginPath();
         values.forEach((raw, i) => {
@@ -2268,6 +2380,14 @@
     function updateChart(dager, ticker) {
         const s = stocks.find(x => x.Aksje === ticker);
         if(!s || isBenchmark(s)) return;
+        const chartColors = {
+            positive: getThemeColor('--green', '#32d74b'),
+            negative: getThemeColor('--red', '#ff453a'),
+            blue: getThemeColor('--blue', '#0a84ff'),
+            grid: getThemeColor('--chart-grid', '#2c2c2e'),
+            axis: getThemeColor('--chart-axis', '#8e8e93'),
+            reference: getThemeColor('--chart-reference', '#ffffff')
+        };
 
         const toast = document.getElementById('tooltipToast');
         const sourceHistory = getStockHistory(s);
@@ -2306,7 +2426,7 @@
                     labels,
                     datasets: [{
                         data: closes,
-                        borderColor: safeNum(s.RS_dag, 0) >= 0 ? '#32d74b' : '#ff453a',
+                        borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
                         borderWidth: 2.5,
                         pointRadius: 0,
                         fill: false,
@@ -2318,7 +2438,7 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: { display: false },
-                        y: { grid: { color: '#2c2c2e' }, ticks: { color: '#8e8e93', font: { size: 10 } } }
+                        y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } }
                     }
                 }
             });
@@ -2332,7 +2452,7 @@
                         labels,
                         datasets: [{
                             data: closes,
-                            borderColor: safeNum(s.RS_dag, 0) >= 0 ? '#32d74b' : '#ff453a',
+                            borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
                             borderWidth: 2.5,
                             pointRadius: 0,
                             fill: false,
@@ -2344,7 +2464,7 @@
                         plugins: { legend: { display: false } },
                         scales: {
                             x: { display: false },
-                            y: { grid: { color: '#2c2c2e' }, ticks: { color: '#8e8e93', font: { size: 10 } } }
+                            y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } }
                         }
                     }
                 });
@@ -2370,12 +2490,12 @@
 
         if (typeof Chart !== 'function') {
             drawCanvasFallback('priceChart', closes, {
-                color: safeNum(s.RS_dag, 0) >= 0 ? '#32d74b' : '#ff453a'
+                color: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative
             });
             drawCanvasFallback('rsiChart', rsiValues, {
                 min: 0,
                 max: 100,
-                color: '#0a84ff',
+                color: chartColors.blue,
                 extraLines: [30, 70]
             });
             toast.innerHTML = `<b>Chart.js ikke lastet:</b> Viser enkel fallback-visning.`;
@@ -2391,7 +2511,7 @@
                 datasets: [
                     {
                         data: rsiValues,
-                        borderColor: '#0a84ff',
+                        borderColor: chartColors.blue,
                         borderWidth: 2,
                         pointRadius: 0,
                         fill: false,
@@ -2399,7 +2519,7 @@
                     },
                     {
                         data: line70,
-                        borderColor: '#ffffff',
+                        borderColor: chartColors.reference,
                         borderWidth: 1.5,
                         pointRadius: 0,
                         fill: false,
@@ -2408,7 +2528,7 @@
                     },
                     {
                         data: line30,
-                        borderColor: '#ffffff',
+                        borderColor: chartColors.reference,
                         borderWidth: 1.5,
                         pointRadius: 0,
                         fill: false,
@@ -2425,7 +2545,7 @@
                     x: {
                         grid: { display: false },
                         ticks: {
-                            color: '#8e8e93',
+                            color: chartColors.axis,
                             autoSkip: true,
                             maxTicksLimit: 5,
                             font: { size: 10 }
@@ -2434,10 +2554,10 @@
                     y: {
                         min: 0,
                         max: 100,
-                        grid: { color: '#2c2c2e', lineWidth: 1 },
+                        grid: { color: chartColors.grid, lineWidth: 1 },
                         ticks: {
                             stepSize: 10,
-                            color: '#8e8e93',
+                            color: chartColors.axis,
                             callback: (v) => ([0, 30, 50, 70, 100].includes(v) ? v : ''),
                             font: (ctx) => {
                                 const v = ctx.tick?.value;
@@ -2548,7 +2668,7 @@
                 <div class="row-top">
                     <div class="stock-card-main" style="display:flex; flex-direction:column;">
                         <span class="ticker"><span class="ticker-symbol">${s.Navn || s.Aksje}</span>${profitHtml}
-                            <span class="score-badge" style="background:#3a3a3c; color:var(--blue);">${signalView.strength.score === null ? '—' : `${signalView.strength.score}/${signalView.strength.max}`}</span>
+                            <span class="score-badge" style="background:var(--control); color:var(--blue);">${signalView.strength.score === null ? '—' : `${signalView.strength.score}/${signalView.strength.max}`}</span>
                         </span>
                         <span class="stock-name-row">
                             ${myStocks.includes(s.Aksje) ? '<span class="list-badge">MINE</span>' : radarStocks.includes(s.Aksje) ? '<span class="list-badge radar">RADAR</span>' : ''}
@@ -2728,6 +2848,7 @@
     configureSignalFilters();
     window.addEventListener('scroll', updateHeaderCompactState, { passive: true });
 
+    syncThemeToggle();
     // Start
     restoreSignalFilters();
     load();
