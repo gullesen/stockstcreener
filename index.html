@@ -44,6 +44,66 @@
         .sort-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
         .sector-filter { margin: 0; min-width: 0; font-weight: 600; text-overflow: ellipsis; }
         .active-sort { border: 1px solid var(--blue) !important; color: var(--blue); }
+        .filter-panel { background: var(--card); border-radius: 14px; margin: 0 0 10px; padding: 10px; }
+        .filter-panel summary { cursor: pointer; color: var(--blue); font-size: 13px; font-weight: 800; }
+        .filter-panel summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+        .visible-stock-count {
+            color: var(--blue);
+            font-size: 12px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+
+
+        .filter-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; margin-top: 10px; }.filter-grid select, .filter-grid input { margin: 0; min-width: 0; }
+        .preset-row { display: flex; gap: 7px; margin-top: 8px; }.preset-btn { flex: 1; border: 1px solid #3a3a3c; border-radius: 9px; background: transparent; color: var(--text); padding: 9px 7px; font-size: 11px; font-weight: 750; }
+        .filter-note { color: var(--secondary); font-size: 10px; line-height: 1.35; margin-top: 8px; }
+        .compact-signal { color:var(--secondary); font-size:10px; font-weight:750; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:4px; flex-basis:100%; order:3; }.stock-card-main { order:1; }.price { order:2; }
+        @media (max-width: 430px) { .sort-row { grid-template-columns:repeat(3, 1fr); } .filter-grid { grid-template-columns:1fr; } .stock-card { padding:14px; } .row-indicators { gap:5px; } .mini-stat .val { font-size:12px; } }
+        .row-top { flex-wrap: wrap; }
+        .compact-signal { width: 100%; }
+        .signal-summary,
+        .scenario-card {
+            background: var(--card);
+            border: 1px solid #2c2c2e;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 0 0 18px;
+        }
+        .signal-summary-title {
+            color: var(--secondary);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .6px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .signal-summary-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid #2c2c2e;
+            font-size: 13px;
+        }
+        .signal-summary-row:last-of-type { border-bottom: 0; }
+        .signal-summary-row span:first-child { color: var(--secondary); }
+        .signal-summary-row span:last-child { font-weight: 800; text-align: right; }
+        .scenario-card p { color: var(--secondary); line-height: 1.45; margin: 5px 0 14px; }
+        .timing-good { color: var(--green); }
+        .timing-possible, .timing-wait { color: var(--yellow); }
+        .timing-weak { color: var(--red); }
+        .timing-none { color: var(--secondary); }
+        @media (max-width: 430px) {
+            .signal-summary-row { grid-template-columns: 1fr; gap: 3px; }
+            .signal-summary-row span:last-child { text-align: left; }
+        }
 
         .stock-card { background: var(--card); border-radius: 18px; padding: 16px; margin-bottom: 12px; }
         .row-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
@@ -68,6 +128,36 @@
         .label { font-size: 9px; color: var(--secondary); font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
         .val { font-size: 14px; font-weight: 700; }
         .info-i { color: var(--blue); font-style: normal; font-size: 11px; margin-left: 2px; }
+
+        .detail-sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 12px;
+            margin: 0 -20px 20px;
+            padding: max(10px, env(safe-area-inset-top)) 20px 10px;
+            background: rgba(0, 0, 0, 0.96);
+            border-bottom: 1px solid #2c2c2e;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+        }
+        .detail-back-button {
+            min-height: 36px;
+            border: 0;
+            background: transparent;
+            color: var(--blue);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 6px 0;
+        }
+        .detail-back-button:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+        .detail-sticky-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 800; text-align: center; }
+        .detail-sticky-price { color: var(--text); font-size: 14px; font-weight: 800; white-space: nowrap; }
+        @media (max-width: 430px) { .detail-sticky-header { gap: 8px; } .detail-back-button { font-size: 14px; } .detail-sticky-name { font-size: 13px; } }
+
 
         #detailPage {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000;
@@ -282,6 +372,7 @@
     </div>
     <div class="sort-row">
         <div id="btn-score" class="sort-btn" onclick="setSort('score')">Score</div>
+        <div id="btn-timing" class="sort-btn" onclick="setSort('timing')">Timing</div>
         <div id="btn-rsi" class="sort-btn" onclick="setSort('rsi')">RSI</div>
         <div id="btn-volum" class="sort-btn" onclick="setSort('volum')">Vol %</div>
         <div id="btn-rr" class="sort-btn" onclick="setSort('rr')">R/R</div>
@@ -292,12 +383,21 @@
             <option value="">Alle sektorer</option>
         </select>
     </div>
+    <details class="filter-panel"><summary><span>Flere signalfiltre</span><span id="visible-stock-count" class="visible-stock-count" aria-live="polite">— aksjer</span></summary><div class="filter-grid"><select id="min-strength" onchange="setSignalFilters()"><option value="">Min. styrke</option><option value="8">Min. 8</option><option value="9">Min. 9</option></select><select id="trend-filter" onchange="setSignalFilters()"><option value="">Alle trender</option><option value="OPPTREND">Opptrend</option><option value="NEDTREND">Nedtrend</option></select><select id="setup-filter" onchange="setSignalFilters()"><option value="">Alle setup</option><option value="BREAKOUT">Breakout</option><option value="SUPPORT BOUNCE">Support bounce</option></select><select id="timing-filter" onchange="setSignalFilters()"><option value="">All timing</option><option value="GOD">God</option><option value="MULIG">Mulig</option><option value="AVVENT">Avvent</option><option value="SVAK">Svak</option></select><select id="valid-rr-filter" onchange="setSignalFilters()"><option value="">Alle R/R</option><option value="true">Kun gyldig R/R</option></select><input id="min-rr" type="number" step="0.1" placeholder="Min. R/R" onchange="setSignalFilters()"><input id="min-rs" type="number" step="0.1" placeholder="Min. RS 3M (%)" onchange="setSignalFilters()"><input id="min-volume" type="number" step="1" placeholder="Min. volum (%)" onchange="setSignalFilters()"></div>
+    <div class="preset-row"><button class="preset-btn" onclick="applySignalPreset('candidates')">Filter: Aktuelle kandidater</button><button class="preset-btn" onclick="applySignalPreset('radar')">Filter: Teknisk radar</button><button class="preset-btn" onclick="resetSignalFilters()">Nullstill</button></div>
+    <div class="filter-grid"><select id="setup-status-filter" aria-label="Setupstatus" onchange="setSignalFilters()"><option value="">Alle setupstatuser</option><option value="FERSK_AKTIV">Fersk eller aktiv</option><option value="FERSK">Fersk</option><option value="AKTIV">Aktiv</option><option value="UTLOPT">Utløpt</option><option value="INGEN">Ingen</option></select></div>
+    <div class="filter-note">Filtervisninger påvirker ikke Mine- eller Radar-listene.</div></details>
+
 </div>
 
 <div id="list">Laster data...</div>
 
 <div id="detailPage">
-    <div class="detail-nav"><div class="back-btn" onclick="closeDetail()">← Tilbake</div></div>
+    <header class="detail-sticky-header">
+        <button type="button" class="detail-back-button" onclick="closeDetail()" aria-label="Tilbake til aksjeoversikten">← Tilbake</button>
+        <div id="detail-sticky-name" class="detail-sticky-name"></div>
+        <div id="detail-sticky-price" class="detail-sticky-price"></div>
+    </header>
 
     <div id="detailHeaderInfo"></div>
 
@@ -326,7 +426,9 @@
 <div id="tooltipToast" onclick="hideTip()"></div>
 
 <script>
-    let stocks = []; let currentSort = 'ticker'; let isAscending = true; let currentFilter = 'all'; let currentSector = '';
+    let allStocks = []; let stocks = []; let currentSort = 'ticker'; let isAscending = true; let currentFilter = 'all'; let currentSector = '';
+    let activeSignalPreset = '';
+    let overviewScrollPosition = 0;
 
     // En ødelagt localStorage-verdi skal ikke hindre resten av appen i å starte.
     function readLocalStorageJson(key, fallback) {
@@ -711,7 +813,7 @@
             const data = await res.json();
 
             if (data && data.aksjer) {
-                stocks = data.aksjer
+                allStocks = data.aksjer
                     .filter(s => s.Aksje && s.Historikk && Array.isArray(s.Historikk))
                     .map(s => {
                         // Ticker brukes også som argument i eksisterende inline-klikkbehandlere.
@@ -731,7 +833,9 @@
                         };
                     })
                     .filter(s => s.Aksje);
+                stocks = allStocks;
                 populateSectorFilter();
+                migrateUserData();
                 if (data.oppdatert) {
                     const tp = data.oppdatert.split(" ");
                     document.getElementById('ts-date').innerText = tp[0] || '--.--.--';
@@ -741,6 +845,8 @@
             evaluateRsiAlerts();
             render();
         } catch (e) {
+            const countElement = document.getElementById('visible-stock-count');
+            if (countElement) countElement.textContent = '— aksjer';
             document.getElementById('list').innerHTML =
                 `<div style="background:var(--card); padding:16px; border-radius:14px;">
                     <div style="font-weight:900; margin-bottom:6px;">Feil ved lasting</div>
@@ -825,6 +931,10 @@
         }
         const n = Number(v);
         return Number.isFinite(n) ? n : fallback;
+    }
+
+    function optionalFilterNumber(value) {
+        return String(value ?? '').trim() === '' ? NaN : normNumber(value, NaN);
     }
 
     function fmt(v, digits = 1, suffix = '') {
@@ -918,6 +1028,43 @@
             classification: getCompositeLabel(score)
         };
     }
+
+    const SIGNAL_ALERTS = { NAER_MOTSTAND:'Nær motstand', LAV_RR:'Lav R/R', SVAKT_VOLUM:'Svak volumstøtte', OVERSTRUKKET:'Overstrukket', MOT_TRENDEN:'Setup mot hovedtrenden', RSI_OVERKJOPT:'Høy RSI', INGEN_FERSK_SETUP:'Ingen fersk setup', MANGLENDE_NIVAER:'Manglende nivågrunnlag' };
+    function getSignalModel(s) { const model = s?.Signalmodell; return model && typeof model === 'object' && !Array.isArray(model) ? model : null; }
+    function signalText(value, fallback = 'Ikke vurdert') { const text = String(value ?? '').trim(); return text ? escapeHtml(text) : fallback; }
+    function getStrength(s, indexStock) { const model=getSignalModel(s), x=model?.styrke; if (x && Number.isFinite(normNumber(x.score,NaN))) return {score:normNumber(x.score),max:normNumber(x.maks,12),label:signalText(x.etikett),explanations:Array.isArray(x.forklaringer)?x.forklaringer:[],version:signalText(model.versjon,'')}; const old=computeCompositeScore(s,indexStock); return old ? {score:old.score,max:old.maxScore,label:old.classification.label,explanations:[],version:''} : {score:null,max:12,label:'Ikke vurdert',explanations:[],version:''}; }
+    function getSignalView(s, indexStock) { const model=getSignalModel(s), strength=getStrength(s,indexStock); if (!model) { const legacy=computeThreeSignals(s); return {model:null,strength,trend:{label:legacy.trend.label,code:legacy.trend.label,explanations:[]},setup:{label:legacy.setup.label,code:legacy.setup.label,status:'',age:null,explanations:[]},timing:{label:'',code:'IKKE_VURDERT',explanations:[]},riskReward:{valid:Number.isFinite(normNumber(s?.Risk_Reward,NaN)),value:normNumber(s?.Risk_Reward,NaN),basis:'',legacy:true},alerts:[]}; } const a=k=>model[k]&&typeof model[k]==='object'?model[k]:{}, trend=a('trend'),setup=a('setup'),timing=a('timing'),rr=a('risk_reward'); return {model,strength,trend:{label:signalText(trend.etikett),code:signalText(trend.kode,''),explanations:Array.isArray(trend.forklaringer)?trend.forklaringer:[]},setup:{label:signalText(setup.etikett),code:signalText(setup.kode,''),status:signalText(setup.status,''),age:normNumber(setup.alder_dager,NaN),explanations:Array.isArray(setup.forklaringer)?setup.forklaringer:[]},timing:{label:signalText(timing.etikett),code:signalText(timing.kode,'IKKE_VURDERT'),explanations:Array.isArray(timing.forklaringer)?timing.forklaringer:[]},riskReward:{valid:rr.gyldig===true,value:normNumber(rr.verdi,NaN),entry:normNumber(rr.inngang,NaN),invalidation:normNumber(rr.invalidering,NaN),target1:normNumber(rr.mal_1,NaN),target2:normNumber(rr.mal_2,NaN),basis:signalText(rr.grunnlag,''),legacy:false},alerts:Array.isArray(model.varsler)?model.varsler:[],scenario:a('scenario')}; }
+    function timingClass(code) { return ({GOD:'timing-good',MULIG:'timing-possible',AVVENT:'timing-wait',SVAK:'timing-weak'})[String(code).toUpperCase()] || 'timing-none'; }
+    function numberOrDash(n, digits=2) { return Number.isFinite(n) ? n.toFixed(digits).replace('.', ',') : '—'; }
+    function renderSignalSummary(v) { const rr=v.riskReward, age=Number.isFinite(v.setup.age)?`${v.setup.age} handelsdag${v.setup.age===1?'':'er'}`:'', alerts=v.alerts.map(x=>SIGNAL_ALERTS[String(x)]||signalText(x,'')).filter(Boolean); return `<section class="signal-summary"><div class="signal-summary-title">Signaloversikt</div><div class="signal-summary-row"><span>Teknisk styrke</span><span>${v.strength.score===null?'Ikke vurdert':`${v.strength.score}/${v.strength.max} · ${v.strength.label}`}</span></div>${v.timing.label?`<div class="signal-summary-row"><span>Timing</span><span class="${timingClass(v.timing.code)}">${v.timing.label}</span></div>`:''}<div class="signal-summary-row"><span>Trend</span><span>${v.trend.label}</span></div><div class="signal-summary-row"><span>Setup</span><span>${v.setup.label}${v.setup.status?` · ${v.setup.status}`:''}</span></div>${age?`<div class="signal-summary-row"><span>Signalalder</span><span>${age}</span></div>`:''}<div class="signal-summary-row"><span>R/R</span><span>${rr.valid?numberOrDash(rr.value,1):'Ikke beregnet'}</span></div>${alerts.length?`<div class="signal-summary-row"><span>Varsel</span><span>${alerts.join(' · ')}</span></div>`:''}</section>`; }
+    function renderRiskReward(v) { const rr=v.riskReward; if (!rr.valid) return `<section class="signal-summary"><div class="signal-summary-title">Risk/reward</div><div class="signal-summary-row"><span>R/R</span><span>Ikke beregnet</span></div>${rr.basis?`<div class="score-disclaimer">${rr.basis}</div>`:''}</section>`; return `<section class="signal-summary"><div class="signal-summary-title">Risk/reward</div><div class="signal-summary-row"><span>R/R</span><span>${numberOrDash(rr.value,1)}</span></div><div class="signal-summary-row"><span>Inngang</span><span>${numberOrDash(rr.entry)}</span></div><div class="signal-summary-row"><span>Invalidering</span><span>${numberOrDash(rr.invalidation)}</span></div><div class="signal-summary-row"><span>Mål 1</span><span>${numberOrDash(rr.target1)}</span></div>${Number.isFinite(rr.target2)?`<div class="signal-summary-row"><span>Mål 2</span><span>${numberOrDash(rr.target2)}</span></div>`:''}${rr.basis?`<div class="score-disclaimer">${rr.basis}</div>`:''}</section>`; }
+    function renderScenario(v) { const p=signalText(v.scenario?.positivt,''), n=signalText(v.scenario?.negativt,''); return (p||n)?`<section class="scenario-card"><div class="score-explanation-title">Hva må skje?</div>${p?`<b>Positivt scenario</b><p>${p}</p>`:''}${n?`<b>Negativt scenario</b><p>${n}</p>`:''}</section>`:''; }
+    function renderSignalExplanations(v) { const groups=[['Teknisk styrke',v.strength.explanations],['Trend',v.trend.explanations],['Setup',v.setup.explanations],['Timing',v.timing.explanations]].filter(([,x])=>x.length), rr=v.riskReward.basis; if(!groups.length&&!rr&&!v.strength.version)return ''; return `<section class="score-explanation"><details><summary>Slik er vurderingen beregnet</summary>${v.strength.version?`<div class="score-explanation-version">Modell: ${v.strength.version}</div>`:''}${groups.map(([name,items])=>`<div class="score-adjustments-title">${name}</div><ul class="classification-explanation-facts">${items.map(x=>`<li>${signalText(x,'')}</li>`).join('')}</ul>`).join('')}${rr?`<div class="score-disclaimer">${rr}</div>`:''}</details></section>`; }
+
+    function isBenchmark(stock) { return String(stock?.Instrumenttype || '').toLowerCase() === 'benchmark' || String(stock?.Aksje || '').toUpperCase() === 'OSEBX.OL'; }
+    function isCandidate(stock) { return Boolean(stock?.Aksje) && !isBenchmark(stock); }
+    function signalLabel(kind, code, fallback) { const maps={trend:{ETABLERT_OPPTREND:'Etablert opptrend',TIDLIG_OPPTREND:'Tidlig opptrend',SIDELENGS:'Sidelengs',SVEKKET_TREND:'Svekket trend',ETABLERT_NEDTREND:'Etablert nedtrend'},setup:{BREAKOUT_BEKREFTET:'Bekreftet breakout',BREAKOUT_FORSOK:'Breakout-forsøk',PULLBACK_OPPTREND:'Pullback i opptrend',SUPPORT_BOUNCE:'Support bounce',INGEN_FERSK_SETUP:'Ingen fersk setup'},status:{FERSK:'Fersk',AKTIV:'Aktiv',UTLOPT:'Utløpt',INGEN:'Ingen'},timing:{GOD:'God',MULIG:'Mulig',AVVENT:'Avvent',SVAK:'Svak',IKKE_VURDERT:'Ikke vurdert'}}; return maps[kind]?.[String(code||'').toUpperCase()] || signalText(fallback || code,'Ikke vurdert'); }
+    function isListableEquity(stock) {
+        const ticker = String(stock?.Aksje || '').trim().toUpperCase();
+        const instrumentType = String(stock?.Instrumenttype || '').trim().toLowerCase();
+        return Boolean(ticker)
+            && ticker !== 'OSEBX.OL'
+            && instrumentType !== 'benchmark';
+    }
+    function formatSignalDate(value) { const m=String(value||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m?`${m[3]}.${m[2]}.${m[1]}`:''; }
+    function migrateUserData() { const valid=new Set(stocks.filter(isCandidate).map(s=>s.Aksje)); const keepList=list=>Array.isArray(list)?list.filter(t=>valid.has(t)):[]; myStocks=keepList(myStocks); radarStocks=keepList(radarStocks); [myGAVs,myNotes,rsiAlerts,rsiAlertState].forEach(obj=>{if(obj&&typeof obj==='object')Object.keys(obj).forEach(t=>{if(!valid.has(t))delete obj[t];});}); localStorage.setItem('myStocks',JSON.stringify(myStocks)); localStorage.setItem('radarStocks',JSON.stringify(radarStocks)); localStorage.setItem('myGAVs',JSON.stringify(myGAVs)); localStorage.setItem('myNotes',JSON.stringify(myNotes)); localStorage.setItem('rsiAlerts',JSON.stringify(rsiAlerts)); localStorage.setItem('rsiAlertState',JSON.stringify(rsiAlertState)); }
+    function getSignalView(s,indexStock) { const model=getSignalModel(s), strength=getStrength(s,indexStock); if(!model){const legacy=computeThreeSignals(s);return {model:null,strength,trend:{code:legacy.trend.label,label:legacy.trend.label,detail:legacy.trend.reason,explanations:[]},setup:{code:legacy.setup.label,label:legacy.setup.label,status:'',statusLabel:'',age:NaN,date:'',signalVolume:NaN,todayVolume:NaN,explanations:[]},timing:{code:'IKKE_VURDERT',label:'',explanations:[]},riskReward:{valid:Number.isFinite(normNumber(s?.Risk_Reward,NaN)),value:normNumber(s?.Risk_Reward,NaN),basis:'',legacy:true},alerts:[],scenario:{}};} const a=k=>model[k]&&typeof model[k]==='object'?model[k]:{},trend=a('trend'),setup=a('setup'),timing=a('timing'),rr=a('risk_reward'),code=x=>String(x||'').toUpperCase(); return {model,strength,trend:{code:code(trend.kode),label:signalLabel('trend',trend.kode,trend.etikett),detail:signalText(trend.etikett,''),explanations:Array.isArray(trend.forklaringer)?trend.forklaringer:[]},setup:{code:code(setup.kode),label:signalLabel('setup',setup.kode,setup.etikett),status:code(setup.status),statusLabel:signalLabel('status',setup.status,''),age:normNumber(setup.alder_dager,NaN),date:formatSignalDate(setup.signaldato),signalVolume:normNumber(setup.signalvolum_prosent,NaN),todayVolume:normNumber(setup.dagens_volum_prosent,NaN),explanations:Array.isArray(setup.forklaringer)?setup.forklaringer:[]},timing:{code:code(timing.kode)||'IKKE_VURDERT',label:signalLabel('timing',timing.kode,timing.etikett),explanations:Array.isArray(timing.forklaringer)?timing.forklaringer:[]},riskReward:{valid:rr.gyldig===true,value:normNumber(rr.verdi,NaN),entry:normNumber(rr.inngang,NaN),invalidation:normNumber(rr.invalidering,NaN),target1:normNumber(rr.mal_1,NaN),target2:normNumber(rr.mal_2,NaN),basis:signalText(rr.grunnlag,''),legacy:false},alerts:Array.isArray(model.varsler)?model.varsler:[],scenario:a('scenario')}; }
+    function renderSignalSummary(v) { const r=v.riskReward, a=v.setup.age, alerts=v.alerts.map(x=>SIGNAL_ALERTS[String(x)]||signalText(String(x).replace(/_/g,' ').toLowerCase(),'')).filter(Boolean), status=[v.setup.statusLabel,Number.isFinite(a)?`${a} handelsdag${a===1?'':'er'}`:''].filter(Boolean).join(' · '); return `<section class="signal-summary"><div class="signal-summary-title">Teknisk vurdering</div><div class="signal-summary-row"><span>Teknisk styrke</span><span>${v.strength.score===null?'Ikke vurdert':`${v.strength.score}/${v.strength.max} · ${v.strength.label}`}</span></div>${v.timing.label?`<div class="signal-summary-row"><span>Timing</span><span class="${timingClass(v.timing.code)}">${v.timing.label}</span></div>`:''}<div class="signal-summary-row"><span>Trend</span><span title="${v.trend.detail}">${v.trend.label}</span></div><div class="signal-summary-row"><span>Setup</span><span>${v.setup.label}</span></div>${status?`<div class="signal-summary-row"><span>Status</span><span>${status}</span></div>`:''}${v.setup.date?`<div class="signal-summary-row"><span>Signaldato</span><span>${v.setup.date}</span></div>`:''}<div class="signal-summary-row"><span>R/R</span><span>${r.valid?numberOrDash(r.value,2):'Ikke beregnet'}</span></div>${alerts.length?`<div class="signal-summary-row"><span>Varsler</span><span>${alerts.join(' · ')}</span></div>`:''}</section>`; }
+    function renderRiskReward(v) { const r=v.riskReward, volume=v.setup; const rows=r.valid?`<div class="signal-summary-row"><span>R/R</span><span class="${r.value<1?'timing-weak':r.value<1.5?'timing-wait':''}">${numberOrDash(r.value,2)}</span></div><div class="signal-summary-row"><span>Aktuell inngang</span><span>${numberOrDash(r.entry)}</span></div><div class="signal-summary-row"><span>Invalidering</span><span>${numberOrDash(r.invalidation)}</span></div><div class="signal-summary-row"><span>Mål 1</span><span>${numberOrDash(r.target1)}</span></div>${Number.isFinite(r.target2)?`<div class="signal-summary-row"><span>Mål 2</span><span>${numberOrDash(r.target2)}</span></div>`:''}`:`<div class="signal-summary-row"><span>R/R</span><span>Ikke beregnet</span></div>`; return `<section class="signal-summary"><div class="signal-summary-title">Risk/reward</div>${rows}${Number.isFinite(volume.signalVolume)?`<div class="signal-summary-row"><span>Volum på signaldagen</span><span>${numberOrDash(volume.signalVolume,0)} % av 20d snitt</span></div>`:''}${Number.isFinite(volume.todayVolume)?`<div class="signal-summary-row"><span>Dagens volum</span><span>${numberOrDash(volume.todayVolume,0)} % av snitt</span></div>`:''}${r.basis?`<div class="score-disclaimer">${r.basis}</div>`:''}<div class="score-disclaimer">R/R viser teknisk oppside mot definert risiko. Den sier ikke hvor sannsynlig målet er.</div></section>`; }
+
+
+
+
+
+
+
+
+
 
     function pickDate(h, idx) {
         return h?.dato || h?.date || h?.Date || h?.tid || `P${idx + 1}`;
@@ -1096,7 +1243,8 @@
         currentTicker = ticker;
         const s = stocks.find(x => x.Aksje === ticker);
         const index = pickBenchmarkStock(stocks);
-        if(!s) return;
+        if(!s || isBenchmark(s)) return;
+        overviewScrollPosition = window.scrollY || document.documentElement.scrollTop || 0;
 
         const gav = myGAVs[ticker] || "";
         const note = escapeHtml(myNotes[ticker] || "");
@@ -1118,6 +1266,7 @@
         const perioder = [{l:'1U',d:5}, {l:'1M',d:21}, {l:'3M',d:63}, {l:'6M',d:126}, {l:'1Å',d:250}];
 
         const sigs = computeThreeSignals(s);
+        const signalView = getSignalView(s, index);
         const composite = computeCompositeScore(s, index);
         const isNorwegian = ['norge', 'norway'].includes(cleanMetadata(s.Land).toLocaleLowerCase());
         const detailMeta = [
@@ -1127,6 +1276,10 @@
         const currencyLabel = !isNorwegian && cleanMetadata(s.Valuta)
             ? `<span style="font-size:13px; color:var(--secondary); margin-left:5px;">${s.Valuta}</span>`
             : '';
+        document.getElementById('detail-sticky-name').textContent = cleanMetadata(s.Navn) || s.Aksje;
+        document.getElementById('detail-sticky-price').textContent = Number(getLastPrice(s)).toFixed(2);
+
+
 
         document.getElementById('detailHeaderInfo').innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
@@ -1134,7 +1287,7 @@
                 <div style="font-size:14px; color:var(--secondary); font-weight:700;">${s.Navn || ""}</div>
                 ${detailMeta.length ? `<div class="company-meta">${detailMeta.map(([label, value]) => `<span class="company-meta-item"><b>${label}:</b> ${value}</span>`).join('')}</div>` : ''}
                 <div style="font-size:26px; font-weight:800; margin-top:10px;">${Number(getLastPrice(s)).toFixed(2)}${currencyLabel}</div>
-                <div style="margin-top:8px;"><span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'}; font-size:12px;">Composite Score: ${composite ? `${composite.score}/${composite.maxScore}` : 'N/A'}${composite ? ` · ${composite.classification.label}` : ''}</span></div>
+                <div style="margin-top:8px;"><span class="score-badge" style="background:#3a3a3c; color:var(--blue); font-size:12px;">Teknisk styrke: ${signalView.strength.score === null ? 'Ikke vurdert' : `${signalView.strength.score}/${signalView.strength.max} · ${signalView.strength.label}`}</span></div>
                 ${profitHtml}
             </div>
         `;
@@ -1144,15 +1297,17 @@
                 <div class="info-box" onclick="showTip(event, 'rsi')"><div class="label">RSI <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.RSI_14, 1)}</div></div>
                 <div class="info-box" onclick="showTip(event, 'atr')"><div class="label">ATR % <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.ATR_pct, 2, '%')}</div><div class="muted-mini">ATR: ${fmt(s.ATR_14, 2)}</div></div>
                 <div class="info-box" onclick="showTip(event, 'volum')"><div class="label">Vol % <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.Volum_vs_Snitt, 0, '%')}</div><div class="muted-mini">20d snitt: ${fmt(s.Avg_Volume_20, 0)}</div></div>
-                <div class="info-box" onclick="showTip(event, 'rr')"><div class="label">R/R <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.Risk_Reward, 2)}</div></div>
+                <div class="info-box" onclick="showTip(event, 'rr')"><div class="label">R/R <i class="info-i">ⓘ</i></div><div class="val">${signalView.riskReward.valid ? numberOrDash(signalView.riskReward.value, 2) : "Ikke beregnet"}</div></div>
                 <div class="info-box" onclick="showTip(event, 'rs')"><div class="label">RS 3M <i class="info-i">ⓘ</i></div><div class="val" style="color:${safeNum(s.RS_3m_vs_OSEBX, 0) >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(s.RS_3m_vs_OSEBX, 1, '%')}</div></div>
-                <div class="info-box"><div class="label">Composite</div><div class="val" style="color:${composite ? composite.classification.color : 'var(--secondary)'};">${composite ? `${composite.score}/${composite.maxScore} · ${composite.classification.label}` : 'N/A'}</div></div>
+                <div class="info-box"><div class="label">Teknisk styrke</div><div class="val" style="color:var(--blue);">${signalView.strength.score === null ? 'Ikke vurdert' : `${signalView.strength.score}/${signalView.strength.max} · ${signalView.strength.label}`}</div></div>
             </div>
+            ${renderSignalSummary(signalView)}
+            <div class="score-disclaimer">Teknisk styrke er en rangering basert på historiske kurs- og volumdata. Den er ikke et kjøpssignal og vurderer ikke selskapskvalitet, verdsettelse, nyheter eller samlet investeringsrisiko.</div>
+            ${renderRiskReward(signalView)}
+            ${renderScenario(signalView)}
+            ${renderSignalExplanations(signalView)}
 
-            ${renderScoreExplanation(s, composite)}
-            ${renderClassificationExplanations(s)}
-
-            <div class="signal-box">
+            <div class="signal-box" ${getSignalModel(s) ? 'hidden' : ''}>
                 <div class="signal-title">Signaler</div>
                 <div class="signal-rows">
 
@@ -1227,7 +1382,10 @@
         `;
 
         document.getElementById('detailPage').style.display = 'block';
-        requestAnimationFrame(() => updateChart(30, ticker));
+        requestAnimationFrame(() => {
+            document.getElementById('detailPage').scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            updateChart(30, ticker);
+        });
     }
 
     function openAlerts(ticker) {
@@ -1273,7 +1431,7 @@
 
     function updateChart(dager, ticker) {
         const s = stocks.find(x => x.Aksje === ticker);
-        if(!s) return;
+        if(!s || isBenchmark(s)) return;
 
         const toast = document.getElementById('tooltipToast');
         const sourceHistory = getStockHistory(s);
@@ -1461,17 +1619,42 @@
         }, 0);
     }
 
+    function setSignalFilters() { const state={}; ['min-strength','trend-filter','setup-filter','setup-status-filter','timing-filter','valid-rr-filter','min-rr','min-rs','min-volume'].forEach(id=>state[id]=document.getElementById(id)?.value||''); localStorage.setItem('signalFilters',JSON.stringify(state)); render(); }
+    function resetSignalFilters() { activeSignalPreset=''; ['min-strength','trend-filter','setup-filter','setup-status-filter','timing-filter','valid-rr-filter','min-rr','min-rs','min-volume'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); setSignalFilters(); }
+    function applySignalPreset(name) { resetSignalFilters(); activeSignalPreset=name; const set=(id,v)=>document.getElementById(id).value=v; set('min-strength','8'); if(name==='candidates'){set('timing-filter','GOD_MULIG');set('setup-status-filter','FERSK_AKTIV');set('valid-rr-filter','true');set('min-rr','1.5');} else { const note=document.querySelector('.filter-note'); if(note) note.textContent='Filter: Teknisk radar — styrke minst 8 og Avvent, breakout-forsøk eller etablert opptrend uten fersk/aktiv setup.'; } setSignalFilters(); }
+    function restoreSignalFilters() { activeSignalPreset = ''; const state=readLocalStorageJson('signalFilters',{}); Object.entries(state).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value;}); }
+
+    function normalizeSignalFilterOptions() { const option=document.querySelector('#setup-filter option[value="SUPPORT BOUNCE"]'); if(option) option.value='SUPPORT_BOUNCE'; }
+    function configureSignalFilters() {
+        const setOptions = (id, options) => {
+            const select = document.getElementById(id);
+            if (!select) return;
+            const selected = select.value;
+            select.replaceChildren(...options.map(([value, label]) => new Option(label, value)));
+            select.value = options.some(([value]) => value === selected) ? selected : '';
+        };
+        setOptions('min-strength', [['', 'Min. styrke / ingen grense'], ...Array.from({ length: 12 }, (_, index) => [String(index + 1), `Min. ${index + 1}`])]);
+        setOptions('trend-filter', [['', 'Alle trendfaser'], ['ETABLERT_OPPTREND', 'Etablert opptrend'], ['TIDLIG_OPPTREND', 'Tidlig opptrend'], ['SIDELENGS', 'Sidelengs'], ['SVEKKET_TREND', 'Svekket trend'], ['ETABLERT_NEDTREND', 'Etablert nedtrend']]);
+        setOptions('setup-filter', [['', 'Alle setup'], ['BREAKOUT_BEKREFTET', 'Bekreftet breakout'], ['BREAKOUT_FORSOK', 'Breakout-forsøk'], ['PULLBACK_OPPTREND', 'Pullback i opptrend'], ['SUPPORT_BOUNCE', 'Support bounce'], ['INGEN_FERSK_SETUP', 'Ingen fersk setup']]);
+        setOptions('timing-filter', [['', 'All timing'], ['GOD', 'God'], ['MULIG', 'Mulig'], ['GOD_MULIG', 'God eller mulig'], ['AVVENT', 'Avvent'], ['SVAK', 'Svak']]);
+    }
+
+
+    function formatStockCount(count) {
+        return `${count} ${count === 1 ? 'aksje' : 'aksjer'}`;
+    }
+
     function render() {
         const query = document.getElementById('search').value.trim().toLocaleLowerCase();
         document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active-sort'));
         const activeBtn = document.getElementById('btn-' + currentSort);
         if(activeBtn) {
             activeBtn.classList.add('active-sort');
-            const sortNames = { score:'SCORE', rsi:'RSI', volum:'VOL %', rr:'R/R', rs:'RS 3M', atr:'ATR %', ticker:'NAVN' };
+            const sortNames = { score:'STYRKE', timing:'TIMING', rsi:'RSI', volum:'VOL %', rr:'R/R', rs:'RS 3M', atr:'ATR %', ticker:'NAVN' };
             activeBtn.innerHTML = (sortNames[currentSort] || currentSort.toUpperCase()) + (isAscending ? "↑" : "↓");
         }
 
-        let filtered = stocks.filter(s =>
+        let filtered = allStocks.filter(isListableEquity).filter(s =>
             [s.Aksje, s.Navn, s.Sektor]
                 .some(value => cleanMetadata(value).toLocaleLowerCase().includes(query))
         );
@@ -1480,8 +1663,20 @@
         if (currentFilter === 'radar') filtered = filtered.filter(s => radarStocks.includes(s.Aksje));
 
         const indexStock = pickBenchmarkStock(stocks);
+        if (activeSignalPreset === 'radar') filtered = filtered.filter(s => { const v=getSignalView(s,indexStock); return v.strength.score >= 8 && (v.timing.code === 'AVVENT' || v.setup.code === 'BREAKOUT_FORSOK' || (v.trend.code === 'ETABLERT_OPPTREND' && !['FERSK','AKTIV'].includes(v.setup.status))); });
+        const sf=id=>document.getElementById(id)?.value||'', minStrength=optionalFilterNumber(sf('min-strength')), minRr=optionalFilterNumber(sf('min-rr')), minRs=optionalFilterNumber(sf('min-rs')), minVol=optionalFilterNumber(sf('min-volume'));
+        filtered = filtered.filter(s => { const v=getSignalView(s,indexStock), rr=v.riskReward; return (!Number.isFinite(minStrength)||v.strength.score>=minStrength) && (!sf('trend-filter')||String(v.trend.code).toUpperCase()===sf('trend-filter')) && (!sf('setup-filter')||String(v.setup.code||v.setup.label).toUpperCase().includes(sf('setup-filter'))) && (!sf('timing-filter')||(sf('timing-filter')==='GOD_MULIG'?['GOD','MULIG'].includes(String(v.timing.code).toUpperCase()):String(v.timing.code).toUpperCase()===sf('timing-filter'))) && (sf('valid-rr-filter')!=='true'||rr.valid) && (!Number.isFinite(minRr)||(rr.valid&&rr.value>=minRr)) && (!Number.isFinite(minRs)||safeNum(s.RS_3m_vs_OSEBX,-Infinity)>=minRs) && (!Number.isFinite(minVol)||safeNum(s.Volum_vs_Snitt,-Infinity)>=minVol); });
+
+        filtered = filtered.filter(s => { const wanted=sf('setup-status-filter'), status=getSignalView(s,indexStock).setup.status; return !wanted || (wanted==='FERSK_AKTIV' ? ['FERSK','AKTIV'].includes(status) : status===wanted); });
+
+        filtered = filtered.filter(s => { const v=getSignalView(s,indexStock), trend=sf('trend-filter'), setup=sf('setup-filter').replace(/ /g,'_'); return (!trend || v.trend.code.includes(trend)) && (!setup || v.setup.code.includes(setup)); });
+
+
+        const countElement = document.getElementById('visible-stock-count');
+        if (countElement) countElement.textContent = formatStockCount(filtered.length);
 
         filtered.sort((a, b) => {
+
             let vA, vB;
             if(currentSort === 'score') {
                 const scoreA = computeCompositeScore(a, indexStock);
@@ -1493,7 +1688,8 @@
             }
             else if(currentSort === 'rsi') { vA = safeNum(a.RSI_14, 0); vB = safeNum(b.RSI_14, 0); }
             else if(currentSort === 'volum') { vA = safeNum(a.Volum_vs_Snitt, 0); vB = safeNum(b.Volum_vs_Snitt, 0); }
-            else if(currentSort === 'rr') { vA = safeNum(a.Risk_Reward, 0); vB = safeNum(b.Risk_Reward, 0); }
+            else if(currentSort === 'rr') { const aa=getSignalView(a,indexStock).riskReward, bb=getSignalView(b,indexStock).riskReward; vA=aa.valid?aa.value:-Infinity; vB=bb.valid?bb.value:-Infinity; }
+            else if(currentSort === 'timing') { const order={GOD:5,MULIG:4,AVVENT:3,SVAK:2,IKKE_VURDERT:1}; vA=order[String(getSignalView(a,indexStock).timing.code).toUpperCase()]||0; vB=order[String(getSignalView(b,indexStock).timing.code).toUpperCase()]||0; }
             else if(currentSort === 'rs') { vA = safeNum(a.RS_3m_vs_OSEBX, -9999); vB = safeNum(b.RS_3m_vs_OSEBX, -9999); }
             else if(currentSort === 'atr') { vA = safeNum(a.ATR_pct, -9999); vB = safeNum(b.ATR_pct, -9999); }
             else { vA = a.Aksje; vB = b.Aksje; }
@@ -1502,6 +1698,7 @@
 
         document.getElementById('list').innerHTML = filtered.map(s => {
             const composite = computeCompositeScore(s, indexStock);
+            const signalView = getSignalView(s, indexStock);
             const gav = myGAVs[s.Aksje];
             let profitHtml = "";
             if (gav) {
@@ -1520,14 +1717,15 @@
             return `<div class="stock-card" onclick="openDetail('${s.Aksje}')">
                 <div class="row-top">
                     <div class="stock-card-main" style="display:flex; flex-direction:column;">
-                        <span class="ticker"><span class="ticker-symbol">${s.Aksje}</span>${profitHtml}
-                            <span class="score-badge" style="background:${composite ? composite.classification.bg : '#3a3a3c'}; color:${composite ? composite.classification.color : 'var(--secondary)'};">${composite ? `${composite.score}/${composite.maxScore} ${composite.classification.label}` : 'N/A'}</span>
+                        <span class="ticker"><span class="ticker-symbol">${s.Navn || s.Aksje}</span>${profitHtml}
+                            <span class="score-badge" style="background:#3a3a3c; color:var(--blue);">${signalView.strength.score === null ? '—' : `${signalView.strength.score}/${signalView.strength.max}`}</span>
                         </span>
                         <span class="stock-name-row">
                             ${myStocks.includes(s.Aksje) ? '<span class="list-badge">MINE</span>' : radarStocks.includes(s.Aksje) ? '<span class="list-badge radar">RADAR</span>' : ''}
-                            <span class="stock-name">${s.Navn || ""}</span>
+                            <span class="stock-name">${s.Aksje}</span>
                         </span>
                     </div>
+                        <span class="compact-signal" aria-label="Signal: ${signalView.strength.score === null ? 'ikke vurdert' : `${signalView.strength.score}/${signalView.strength.max}`} · ${signalView.timing.label || 'ikke vurdert'} · ${signalView.setup.label}">${signalView.strength.score === null ? '—' : `${signalView.strength.score}/${signalView.strength.max}`} · ${signalView.timing.label || '—'}${signalView.setup.label ? ` · ${signalView.setup.label}` : ''}</span>
                     <span class="price">
                         <span class="triple-icons" title="T = Trend · S = Setup · R = Risiko" aria-label="T = Trend, S = Setup, R = Risiko">
                             <span class="signal-mini"><span class="signal-mini-label">T</span><span class="sig-dot" style="color:${tDot.color};">${tDot.icon}</span></span>
@@ -1542,13 +1740,14 @@
                     <div class="mini-stat"><span class="label">VOL %</span><span class="val">${fmt(s.Volum_vs_Snitt, 0, '%')}</span></div>
                     <div class="mini-stat"><span class="label">RS 3M</span><span class="val" style="color:${safeNum(s.RS_3m_vs_OSEBX, 0) >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(s.RS_3m_vs_OSEBX, 1, '%')}</span></div>
                     <div class="mini-stat"><span class="label">ATR %</span><span class="val">${fmt(s.ATR_pct, 1, '%')}</span></div>
-                    <div class="mini-stat"><span class="label">R/R</span><span class="val">${fmt(s.Risk_Reward, 1)}</span></div>
+                    <div class="mini-stat"><span class="label">R/R</span><span class="val">${signalView.riskReward.valid ? numberOrDash(signalView.riskReward.value, 1) : "—"}</span></div>
                 </div>
             </div>`;
         }).join('');
     }
 
     function toggleList(ticker, type) {
+        if (!isCandidate(stocks.find(s => s.Aksje === ticker))) return;
         let list = type === 'mine' ? myStocks : radarStocks;
         let other = type === 'mine' ? radarStocks : myStocks;
         const idx = list.indexOf(ticker);
@@ -1565,6 +1764,7 @@
     }
 
     function saveData(ticker, field, val) {
+        if (!isCandidate(stocks.find(s => s.Aksje === ticker))) return;
         if (field === 'gav') {
             if (!val || val == 0) delete myGAVs[ticker];
             else myGAVs[ticker] = parseFloat(val);
@@ -1666,6 +1866,12 @@
     function closeDetail() {
         document.getElementById('alertPage').style.display = 'none';
         document.getElementById('detailPage').style.display = 'none';
+        document.getElementById('detailPage').scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: overviewScrollPosition, left: 0, behavior: 'auto' });
+        });
+        document.getElementById('detail-sticky-name').textContent = '';
+        document.getElementById('detail-sticky-price').textContent = '';
     }
 
     let detailSwipeStart = null;
@@ -1689,9 +1895,11 @@
         const header = document.querySelector('.sticky-header');
         header.classList.toggle('compact', window.scrollY > 100);
     }
+    configureSignalFilters();
     window.addEventListener('scroll', updateHeaderCompactState, { passive: true });
 
     // Start
+    restoreSignalFilters();
     load();
     updateSearchClearButton();
     updateHeaderCompactState();
