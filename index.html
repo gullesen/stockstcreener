@@ -396,6 +396,50 @@
         #chart-content .charts-wrapper {
             margin-bottom: 0;
         }
+        .trend-channel-status {
+            margin: 0 0 10px;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface-muted);
+            color: var(--text);
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .trend-channel-status-title { font-weight: 900; }
+        .trend-channel-status-meta { margin-top: 3px; color: var(--secondary); font-weight: 650; }
+        .trend-channel-status.is-possible { border-color: color-mix(in srgb, var(--orange) 62%, var(--border)); }
+        .trend-channel-status.is-confirmed { border-color: color-mix(in srgb, var(--blue) 55%, var(--border)); }
+        .chart-layer-row { display: flex; justify-content: flex-end; margin: -7px 0 10px; }
+        .trend-channel-toggle {
+            min-height: 34px;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--surface-muted);
+            color: var(--text);
+            cursor: pointer;
+            font: inherit;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .trend-channel-toggle[aria-pressed="true"] { border-color: var(--blue); color: var(--blue); }
+        .trend-channel-toggle:focus-visible,
+        .time-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+        .trend-channel-explanation { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; margin: 0 0 18px; }
+        .trend-channel-explanation-title { font-size: 14px; font-weight: 900; margin-bottom: 8px; }
+        .trend-channel-explanation-heading { font-size: 13px; font-weight: 850; margin: 10px 0 4px; }
+        .trend-channel-explanation-copy { margin: 0; color: var(--text); font-size: 13px; line-height: 1.45; }
+        .trend-channel-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 13px; }
+        .trend-channel-fact { padding: 9px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-muted); min-width: 0; }
+        .trend-channel-fact-label { display: block; color: var(--secondary); font-size: 10px; font-weight: 800; line-height: 1.2; text-transform: uppercase; }
+        .trend-channel-fact-value { display: block; margin-top: 3px; font-size: 12px; font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+        .trend-channel-help, .trend-channel-disclaimer { margin: 11px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.4; }
+        @media (max-width: 430px) {
+            .time-row { gap: 2px; }
+            .time-btn { min-width: 0; padding: 8px 2px; font-size: 10px; }
+            .trend-channel-facts { grid-template-columns: 1fr; }
+        }
         .signal-history-section {
             background: var(--card);
             border: 1px solid var(--border);
@@ -917,12 +961,17 @@
             </span>
         </button>
         <div id="chart-content" hidden>
+            <div id="trend-channel-status" class="trend-channel-status" aria-live="polite">Ingen robust aktiv trendkanal identifisert.</div>
             <div class="time-row">
-                <div class="time-btn" id="t-7" onclick="changeTime(7)">1U</div>
-                <div class="time-btn active" id="t-30" onclick="changeTime(30)">1M</div>
-                <div class="time-btn" id="t-90" onclick="changeTime(90)">3M</div>
-                <div class="time-btn" id="t-180" onclick="changeTime(180)">6M</div>
-                <div class="time-btn" id="t-365" onclick="changeTime(365)">1Å</div>
+                <button type="button" class="time-btn" id="t-7" onclick="changeTime(7)">1U</button>
+                <button type="button" class="time-btn active" id="t-30" onclick="changeTime(30)">1M</button>
+                <button type="button" class="time-btn" id="t-90" onclick="changeTime(90)">3M</button>
+                <button type="button" class="time-btn" id="t-180" onclick="changeTime(180)">6M</button>
+                <button type="button" class="time-btn" id="t-365" onclick="changeTime(365)">1Å</button>
+                <button type="button" class="time-btn" id="t-channel" onclick="changeTime('channel')" hidden>Kanal</button>
+            </div>
+            <div id="trend-channel-controls" class="chart-layer-row" hidden>
+                <button id="trend-channel-toggle" type="button" class="trend-channel-toggle" onclick="toggleTrendChannelVisibility()" aria-label="Vis trendkanal i kursgraf" aria-pressed="true">Trendkanal: på</button>
             </div>
             <div class="charts-wrapper">
                 <div class="chart-price-container"><canvas id="priceChart"></canvas></div>
@@ -1010,6 +1059,7 @@
     let rsiAlerts = readLocalStorageJson('rsiAlerts', {});
     let rsiAlertState = readLocalStorageJson('rsiAlertState', {});
     let priceChart = null; let rsiChart = null;
+    let showTrendChannel = (() => { try { return localStorage.getItem('stockscreener-show-trend-channel') !== 'false'; } catch (_) { return true; } })();
     let currentTicker = null;
     let currentChartPeriod = 30;
     let signalHistoryFrom = '';
@@ -1491,8 +1541,7 @@
         }
     }
 
-
-    const chartPeriodLabels = { 7: '1U', 30: '1M', 90: '3M', 180: '6M', 365: '1Å' };
+    const chartPeriodLabels = { 7: '1U', 30: '1M', 90: '3M', 180: '6M', 365: '1Å', channel: 'Kanal' };
 
     function updateChartPeriodLabel() {
         const label = document.getElementById('active-chart-period');
@@ -2079,6 +2128,238 @@
 
 
 
+    // Trendkanal: frontend leser bare ferdigberegnede backendverdier og faller trygt tilbake ved ufullstendige data.
+    function safeTrendText(value) {
+        if (typeof value === 'string') return value.trim();
+        if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+        return '';
+    }
+
+    function trendChannelDateKey(value) {
+        const text = safeTrendText(value);
+        const match = text.match(/^(\d{4}-\d{2}-\d{2})/);
+        return match ? match[1] : '';
+    }
+
+    function getTrendChannel(stock) {
+        const channel = stock?.Trendkanal;
+        return channel && typeof channel === 'object' && !Array.isArray(channel) ? channel : null;
+    }
+
+    function getTrendChannelStatus(channel) {
+        return safeTrendText(channel?.status).toUpperCase();
+    }
+
+    function getRecentTrendChannelBreak(stock) {
+        const recent = getTrendChannel(stock)?.nylig_brudd;
+        return recent && typeof recent === 'object' && !Array.isArray(recent) ? recent : null;
+    }
+
+    function isPossibleTrendChannelBreak(channel) {
+        return /^MULIG_BRUDD_(OPP|NED)$/.test(getTrendChannelStatus(channel));
+    }
+
+    function isConfirmedTrendChannelBreak(channel) {
+        return /^(BEKREFTET_BRUDD_(OPP|NED)|AVSLUTTET_NYLIG)$/.test(getTrendChannelStatus(channel));
+    }
+
+    function hasActiveTrendChannel(stock) {
+        const channel = getTrendChannel(stock);
+        const direction = safeTrendText(channel?.retning).toUpperCase();
+        return Boolean((channel?.aktiv === true || getTrendChannelStatus(channel) === 'AKTIV') && (direction === 'STIGENDE' || direction === 'FALLENDE'));
+    }
+
+    function getTrendChannelGraphData(stock) {
+        const channel = getTrendChannel(stock);
+        if (!channel) return { channel: null, recent: null, isBreak: false, points: [] };
+        const recent = getRecentTrendChannelBreak(stock);
+        const candidates = [
+            { graph: channel.graf, isBreak: !hasActiveTrendChannel(stock) },
+            { graph: recent?.grafdata, isBreak: true },
+            { graph: recent?.graf, isBreak: true },
+            { graph: recent?.forrige_kanal?.grafdata, isBreak: true },
+            { graph: recent?.forrige_kanal?.graf, isBreak: true },
+            { graph: channel.forrige_kanal?.grafdata, isBreak: true },
+            { graph: channel.forrige_kanal?.graf, isBreak: true }
+        ];
+        const found = candidates.find(candidate => Array.isArray(candidate.graph) && candidate.graph.length);
+        if (!found) return { channel, recent, isBreak: false, points: [] };
+        const breakDate = trendChannelDateKey(recent?.bekreftet_dato || recent?.mulig_brudddato);
+        const shouldFreeze = found.isBreak && isConfirmedTrendChannelBreak(channel) && breakDate;
+        const points = found.graph.map(point => ({
+            date: trendChannelDateKey(point?.dato || point?.date || point?.Date),
+            lower: normNumber(point?.nedre, NaN),
+            middle: normNumber(point?.midt, NaN),
+            upper: normNumber(point?.ovre, NaN)
+        })).filter(point => point.date && [point.lower, point.middle, point.upper].some(Number.isFinite))
+            .filter(point => !shouldFreeze || point.date <= breakDate);
+        return { channel, recent, isBreak: found.isBreak, points };
+    }
+
+    function hasRecentTrendChannelBreak(stock) {
+        const channel = getTrendChannel(stock);
+        if (isPossibleTrendChannelBreak(channel) || isConfirmedTrendChannelBreak(channel)) return true;
+        const recent = getRecentTrendChannelBreak(stock);
+        if (!recent) return false;
+        const status = safeTrendText(recent.status).toUpperCase();
+        return /^(MULIG_BRUDD_(OPP|NED)|BEKREFTET_BRUDD_(OPP|NED)|AVSLUTTET_NYLIG)$/.test(status)
+            || Boolean(safeTrendText(recent.bruddretning) && (trendChannelDateKey(recent.mulig_brudddato) || trendChannelDateKey(recent.bekreftet_dato) || safeTrendText(recent.kanal_id)));
+    }
+
+    function hasTrendChannelAnalysis(stock) {
+        return hasActiveTrendChannel(stock) || hasRecentTrendChannelBreak(stock);
+    }
+
+    function formatTrendChannelDirection(direction) {
+        const value = safeTrendText(direction).toUpperCase();
+        return value === 'STIGENDE' ? 'stigende' : value === 'FALLENDE' ? 'fallende' : value ? value.toLowerCase() : 'ukjent';
+    }
+
+    function formatTrendChannelDate(value) {
+        const key = trendChannelDateKey(value);
+        if (!key) return 'Ikke oppgitt';
+        const [year, month, day] = key.split('-');
+        return `${day}.${month}.${year}`;
+    }
+
+    function formatTrendChannelNumber(value, stock) {
+        const number = normNumber(value, NaN);
+        if (!Number.isFinite(number)) return '–';
+        const price = getLastPrice(stock);
+        return number.toFixed(Number.isFinite(price) && Math.abs(price) >= 1000 ? 1 : 2);
+    }
+
+    function formatChannelDistance(percent, atr) {
+        const pct = normNumber(percent, NaN);
+        const atrValue = normNumber(atr, NaN);
+        const values = [];
+        if (Number.isFinite(pct)) values.push(`${Math.abs(pct).toFixed(Math.abs(pct) < 10 ? 2 : 1)} %`);
+        if (Number.isFinite(atrValue)) values.push(`${Math.abs(atrValue).toFixed(Math.abs(atrValue) < 10 ? 2 : 1)} ATR`);
+        return values.join(' / ');
+    }
+
+    function formatTrendChannelPosition(channel) {
+        const code = safeTrendText(channel?.nivaaer_na?.posisjon_kode).toUpperCase();
+        const labels = { 'NÆR_NEDRE_KANAL': 'Nær nedre kanalstøtte', 'NAR_NEDRE_KANAL': 'Nær nedre kanalstøtte', 'NÆR_ØVRE_KANAL': 'Nær øvre kanalmotstand', 'NAR_OVRE_KANAL': 'Nær øvre kanalmotstand', 'MIDT_I_KANAL': 'Kurs omtrent midt i kanalen' };
+        return safeTrendText(channel?.nivaaer_na?.naermeste_grense?.etikett) || labels[code] || '';
+    }
+
+    function getTrendChannelBreakDirection(channel, recent) {
+        const status = getTrendChannelStatus(channel);
+        const value = safeTrendText(recent?.bruddretning).toUpperCase();
+        if (value === 'OPP' || value === 'NED') return value;
+        return status.endsWith('_OPP') ? 'OPP' : status.endsWith('_NED') ? 'NED' : '';
+    }
+
+    function buildTrendChannelStatus(stock) {
+        const channel = getTrendChannel(stock);
+        const recent = getRecentTrendChannelBreak(stock);
+        if (!hasTrendChannelAnalysis(stock)) return '<span>Ingen robust aktiv trendkanal identifisert.</span>';
+        if (hasActiveTrendChannel(stock)) {
+            const title = safeTrendText(channel?.tolkning?.overskrift) || `Aktiv ${formatTrendChannelDirection(channel.tidshorisont || 'kortsiktig')} ${formatTrendChannelDirection(channel.retning)} trendkanal`;
+            const nearest = channel?.nivaaer_na?.naermeste_grense || {};
+            const facts = [Number.isFinite(normNumber(channel.alder_handelsdager, NaN)) ? `${Math.round(normNumber(channel.alder_handelsdager))} handelsdager` : '', safeTrendText(channel?.kvalitet?.etikett) ? `${safeTrendText(channel.kvalitet.etikett)} kvalitet` : '', formatTrendChannelPosition(channel), formatChannelDistance(nearest.avstand_prosent, nearest.avstand_atr)].filter(Boolean);
+            return `<div class="trend-channel-status-title">${escapeHtml(title)}</div>${facts.length ? `<div class="trend-channel-status-meta">${escapeHtml(facts.join(' · '))}</div>` : ''}`;
+        }
+        const direction = getTrendChannelBreakDirection(channel, recent);
+        const previousDirection = formatTrendChannelDirection(recent?.tidligere_retning || channel?.retning);
+        const confirmed = isConfirmedTrendChannelBreak(channel) || /^BEKREFTET/.test(safeTrendText(recent?.status).toUpperCase());
+        const title = `${confirmed ? 'Bekreftet' : 'Mulig'} brudd ${direction ? direction.toLowerCase() : ''} fra ${previousDirection} trendkanal`.replace(/\s+/g, ' ').trim();
+        const distance = formatChannelDistance(recent?.avstand_prosent, recent?.avstand_atr);
+        const date = trendChannelDateKey(confirmed ? recent?.bekreftet_dato : recent?.mulig_brudddato);
+        const facts = [date ? `${confirmed ? 'Bekreftet' : 'Registrert'} ${formatTrendChannelDate(date)}` : '', distance ? `${distance} ${direction === 'OPP' ? 'over' : direction === 'NED' ? 'under' : 'utenfor'} tidligere kanalgrense` : '', safeTrendText(recent?.styrke), Number.isFinite(normNumber(recent?.volum_vs_20d, NaN)) ? `Volum ${normNumber(recent.volum_vs_20d).toFixed(2)}× 20-dagerssnitt` : '', !confirmed ? 'Ikke bekreftet' : ''].filter(Boolean);
+        return `<div class="trend-channel-status-title${confirmed ? ' is-confirmed' : ' is-possible'}">${escapeHtml(title)}</div>${facts.length ? `<div class="trend-channel-status-meta">${escapeHtml(facts.join(' · '))}</div>` : ''}`;
+    }
+
+    function updateTrendChannelVisibility(stock) {
+        const status = document.getElementById('trend-channel-status');
+        const controls = document.getElementById('trend-channel-controls');
+        const toggle = document.getElementById('trend-channel-toggle');
+        const channelButton = document.getElementById('t-channel');
+        const channel = getTrendChannel(stock);
+        const hasGraph = hasTrendChannelAnalysis(stock) && getTrendChannelGraphData(stock).points.length > 0;
+        if (status) {
+            status.className = `trend-channel-status${isPossibleTrendChannelBreak(channel) ? ' is-possible' : isConfirmedTrendChannelBreak(channel) ? ' is-confirmed' : ''}`;
+            status.innerHTML = buildTrendChannelStatus(stock);
+        }
+        if (controls) controls.hidden = !hasGraph;
+        if (channelButton) channelButton.hidden = !hasGraph;
+        if (toggle) {
+            toggle.setAttribute('aria-pressed', String(showTrendChannel));
+            toggle.textContent = `Trendkanal: ${showTrendChannel ? 'på' : 'av'}`;
+            toggle.setAttribute('aria-label', `${showTrendChannel ? 'Skjul' : 'Vis'} trendkanal i kursgraf`);
+        }
+        if (!hasGraph && currentChartPeriod === 'channel') currentChartPeriod = 180;
+        updateChartPeriodLabel();
+    }
+
+    function toggleTrendChannelVisibility() {
+        if (!currentTicker) return;
+        const stock = stocks.find(item => item.Aksje === currentTicker);
+        if (!hasTrendChannelAnalysis(stock) || !getTrendChannelGraphData(stock).points.length) return;
+        showTrendChannel = !showTrendChannel;
+        try { localStorage.setItem('stockscreener-show-trend-channel', String(showTrendChannel)); } catch (_) {}
+        updateTrendChannelVisibility(stock);
+        const content = document.getElementById('chart-content');
+        if (content && !content.hidden) updateChart(currentChartPeriod, currentTicker);
+    }
+
+    function buildTrendChannelExplanation(stock) {
+        const channel = getTrendChannel(stock);
+        const recent = getRecentTrendChannelBreak(stock);
+        if (!hasTrendChannelAnalysis(stock)) return `<section class="trend-channel-explanation"><div class="trend-channel-explanation-title">Trendkanal og markedsstruktur</div><p class="trend-channel-explanation-copy">Ingen robust aktiv trendkanal identifisert.</p><p class="trend-channel-help">Trendkanaler vises bare når analysen identifiserer en robust aktiv kanal.</p><p class="trend-channel-disclaimer">Trendkanaler beskriver teknisk markedsstruktur og skal ikke brukes som selvstendige kjøps- eller salgssignaler.</p></section>`;
+        const fact = (label, value, title = '') => value ? `<div class="trend-channel-fact"${title ? ` title="${escapeHtml(title)}"` : ''}><span class="trend-channel-fact-label">${escapeHtml(label)}</span><span class="trend-channel-fact-value">${escapeHtml(value)}</span></div>` : '';
+        const isBreak = !hasActiveTrendChannel(stock) && hasRecentTrendChannelBreak(stock);
+        const interpretation = channel.tolkning && typeof channel.tolkning === 'object' ? channel.tolkning : (recent?.tolkning && typeof recent.tolkning === 'object' ? recent.tolkning : {});
+        const breakDirection = getTrendChannelBreakDirection(channel, recent);
+        const heading = safeTrendText(interpretation.overskrift) || (isBreak ? `${isConfirmedTrendChannelBreak(channel) ? 'Bekreftet' : 'Mulig'} brudd ${breakDirection ? breakDirection.toLowerCase() : 'med ukjent retning'} fra ${formatTrendChannelDirection(recent?.tidligere_retning || channel.retning)} trendkanal` : `Aktiv ${formatTrendChannelDirection(channel.tidshorisont || 'kortsiktig')} ${formatTrendChannelDirection(channel.retning)} trendkanal`);
+        const paragraphs = [['Kortsiktig', safeTrendText(interpretation.kortsiktig) || safeTrendText(recent?.regelbasert_tolkning)], ['Mellomlang kontekst', safeTrendText(interpretation.mellomlang)], [isBreak ? 'Oppfølging' : 'Positivt scenario', safeTrendText(interpretation.positivt_scenario)], [isBreak ? 'Vurdering' : 'Negativt scenario', safeTrendText(interpretation.negativt_scenario)]].filter(([, text]) => text).map(([label, text]) => `<div class="trend-channel-explanation-heading">${escapeHtml(label)}</div><p class="trend-channel-explanation-copy">${escapeHtml(text)}</p>`).join('');
+        const levels = channel.nivaaer_na && typeof channel.nivaaer_na === 'object' ? channel.nivaaer_na : {};
+        const nearest = levels.naermeste_grense && typeof levels.naermeste_grense === 'object' ? levels.naermeste_grense : {};
+        const age = normNumber(channel.alder_handelsdager, NaN);
+        const lowerDistance = formatChannelDistance(levels.avstand_nedre?.prosent, levels.avstand_nedre?.atr);
+        const upperDistance = formatChannelDistance(levels.avstand_ovre?.prosent, levels.avstand_ovre?.atr);
+        const breakDistance = formatChannelDistance(recent?.avstand_prosent, recent?.avstand_atr);
+        const facts = isBreak ? [fact('Tidligere kanalretning', formatTrendChannelDirection(recent?.tidligere_retning || channel.retning)), fact('Bruddstatus', isConfirmedTrendChannelBreak(channel) ? 'Bekreftet' : 'Mulig'), fact('Brudddato', trendChannelDateKey(recent?.bekreftet_dato || recent?.mulig_brudddato) ? formatTrendChannelDate(recent?.bekreftet_dato || recent?.mulig_brudddato) : ''), fact('Avstand utenfor', breakDistance), fact('Bekreftelsesmetode', safeTrendText(recent?.bekreftelsesmetode)), fact('Bruddstyrke', safeTrendText(recent?.styrke)), fact('Volum', Number.isFinite(normNumber(recent?.volum_vs_20d, NaN)) ? `${normNumber(recent.volum_vs_20d).toFixed(2)}× 20-dagerssnitt` : ''), fact('Handelsdager siden', Number.isFinite(normNumber(recent?.handelsdager_siden, NaN)) ? String(Math.round(normNumber(recent.handelsdager_siden))) : '')] : [fact('Kanalretning', formatTrendChannelDirection(channel.retning)), fact('Startdato', trendChannelDateKey(channel.startdato) ? formatTrendChannelDate(channel.startdato) : '', 'Strukturell begynnelse for kanalen'), fact('Oppdaget dato', trendChannelDateKey(channel.oppdaget_dato) ? formatTrendChannelDate(channel.oppdaget_dato) : '', 'Når algoritmen først hadde nok data til å identifisere kanalen'), fact('Alder', Number.isFinite(age) ? `${Math.round(age)} handelsdager` : ''), fact('Kvalitet', safeTrendText(channel.kvalitet?.etikett)), fact('Nedre kanalgrense nå', formatTrendChannelNumber(levels.nedre, stock)), fact('Midtlinje nå', formatTrendChannelNumber(levels.midt, stock)), fact('Øvre kanalgrense nå', formatTrendChannelNumber(levels.ovre, stock)), fact('Kanalposisjon', formatTrendChannelPosition(channel)), fact('Nærmeste grense', formatChannelDistance(nearest.avstand_prosent, nearest.avstand_atr)), fact('Avstand til nedre grense', lowerDistance), fact('Avstand til øvre grense', upperDistance)].filter(Boolean).join('');
+        const recentDirection = getTrendChannelBreakDirection(channel, recent);
+        const recentNote = !isBreak && hasRecentTrendChannelBreak(stock) && recent ? `<p class="trend-channel-help">Nylig kanalbrudd: ${escapeHtml(`${safeTrendText(recent.status) || 'registrert'}${recentDirection ? ` ${recentDirection.toLowerCase()}` : ''}`)}${trendChannelDateKey(recent.bekreftet_dato || recent.mulig_brudddato) ? ` · ${formatTrendChannelDate(recent.bekreftet_dato || recent.mulig_brudddato)}` : ''}.</p>` : '';
+        return `<section class="trend-channel-explanation"><div class="trend-channel-explanation-title">Trendkanal og markedsstruktur</div><div class="trend-channel-explanation-heading">${escapeHtml(heading)}</div>${paragraphs || '<p class="trend-channel-explanation-copy">Detaljert regelbasert forklaring er ikke tilgjengelig for denne kanalen.</p>'}${facts ? `<div class="trend-channel-facts">${facts}</div>` : ''}${recentNote}${!isBreak ? '<p class="trend-channel-help">Startdato viser kanalens beregnede strukturelle begynnelse. Oppdaget dato viser når algoritmen først hadde nok data til å identifisere kanalen.</p>' : ''}<p class="trend-channel-disclaimer">${isBreak && isConfirmedTrendChannelBreak(channel) ? 'Et bekreftet kanalbrudd er en teknisk hendelse, ikke et selvstendig kjøps- eller salgssignal.' : 'Trendkanaler beskriver teknisk markedsstruktur og skal ikke brukes som selvstendige kjøps- eller salgssignaler.'}</p></section>`;
+    }
+    function getTrendChannelRange(stock, period) {
+        const history = getStockHistory(stock);
+        if (period !== 'channel') return history.slice(-Number(period));
+        const graph = getTrendChannelGraphData(stock);
+        const start = trendChannelDateKey(graph.channel?.startdato) || graph.points[0]?.date;
+        if (!history.length || !start) return history;
+        const firstIndex = history.findIndex((entry, index) => trendChannelDateKey(pickDate(entry, index)) >= start);
+        return history.slice(Math.max(0, firstIndex < 0 ? 0 : firstIndex - 5));
+    }
+
+    function buildTrendChannelDatasets(stock, history, labels, chartColors) {
+        const graph = getTrendChannelGraphData(stock);
+        if (!showTrendChannel || !hasTrendChannelAnalysis(stock) || !graph.points.length) return [];
+        const pointsByDate = new Map(graph.points.map(point => [point.date, point]));
+        const series = key => labels.map(label => {
+            const value = pointsByDate.get(trendChannelDateKey(label))?.[key];
+            return Number.isFinite(value) ? value : null;
+        });
+        const muted = graph.isBreak ? 0.6 : 1;
+        const channelColor = getThemeColor('--blue', '#0a84ff');
+        const datasets = [
+            { label: 'Nedre kanalgrense', data: series('lower'), borderColor: channelColor, backgroundColor: graph.isBreak ? 'rgba(10, 132, 255, 0.06)' : 'rgba(10, 132, 255, 0.13)', borderWidth: 2 * muted, pointRadius: 0, fill: '+1', tension: 0, spanGaps: false },
+            { label: 'Øvre kanalgrense', data: series('upper'), borderColor: channelColor, borderWidth: 2 * muted, pointRadius: 0, fill: false, tension: 0, spanGaps: false },
+            { label: 'Midtlinje', data: series('middle'), borderColor: chartColors.axis, borderWidth: 1.25 * muted, borderDash: [6, 5], pointRadius: 0, fill: false, tension: 0, spanGaps: false }
+        ];
+        const breakDate = trendChannelDateKey(graph.recent?.bekreftet_dato);
+        if (graph.isBreak && breakDate) {
+            const markerValue = normNumber(graph.recent?.kanalgrense, NaN);
+            const closeAtBreak = history.find((entry, index) => trendChannelDateKey(pickDate(entry, index)) === breakDate);
+            const pointValue = Number.isFinite(markerValue) ? markerValue : normNumber(closeAtBreak?.close, NaN);
+            const direction = getTrendChannelBreakDirection(graph.channel, graph.recent);
+            datasets.push({ label: `Bekreftet brudd ${direction ? direction.toLowerCase() : 'ukjent retning'}`, data: labels.map(label => trendChannelDateKey(label) === breakDate && Number.isFinite(pointValue) ? pointValue : null), borderColor: chartColors.blue, backgroundColor: chartColors.blue, pointRadius: 5, pointHoverRadius: 6, pointStyle: 'triangle', showLine: false, fill: false });
+        }
+        return datasets;
+    }
     function pickDate(h, idx) {
         return h?.dato || h?.date || h?.Date || h?.tid || `P${idx + 1}`;
     }
@@ -2260,6 +2541,7 @@
         overviewScrollPosition = window.scrollY || document.documentElement.scrollTop || 0;
 
         resetChartSection();
+        updateTrendChannelVisibility(s);
         const gav = myGAVs[ticker] || "";
         const note = escapeHtml(myNotes[ticker] || "");
 
@@ -2297,6 +2579,7 @@
         `;
 
         document.getElementById('detailBodyContent').innerHTML = `
+            ${buildTrendChannelExplanation(s)}
             <div class="info-grid">
                 <div class="info-box" onclick="showTip(event, 'rsi')"><div class="label">RSI <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.RSI_14, 1)}</div></div>
                 <div class="info-box" onclick="showTip(event, 'atr')"><div class="label">ATR % <i class="info-i">ⓘ</i></div><div class="val">${fmt(s.ATR_pct, 2, '%')}</div><div class="muted-mini">ATR: ${fmt(s.ATR_14, 2)}</div></div>
@@ -2430,7 +2713,7 @@
 
     function updateChart(dager, ticker) {
         const s = stocks.find(x => x.Aksje === ticker);
-        if(!s || isBenchmark(s)) return;
+        if (!s || isBenchmark(s)) return;
         const chartColors = {
             positive: getThemeColor('--green', '#32d74b'),
             negative: getThemeColor('--red', '#ff453a'),
@@ -2439,51 +2722,55 @@
             axis: getThemeColor('--chart-axis', '#8e8e93'),
             reference: getThemeColor('--chart-reference', '#ffffff')
         };
-
         const toast = document.getElementById('tooltipToast');
         const sourceHistory = getStockHistory(s);
-        const history = (sourceHistory.length ? sourceHistory : buildFallbackHistory(s, dager)).slice(-dager);
+        const fallbackLength = typeof dager === 'number' ? dager : 180;
+        const selectedHistory = sourceHistory.length ? getTrendChannelRange(s, dager) : buildFallbackHistory(s, fallbackLength);
+        const history = selectedHistory.length ? selectedHistory : buildFallbackHistory(s, fallbackLength);
         if (!sourceHistory.length) {
             toast.innerHTML = `<b>Mangler historikk:</b> Viser midlertidig linje basert på siste kurs.`;
             toast.classList.add('active');
             setTimeout(hideTip, 3500);
         }
-    
-        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.getElementById('t-' + dager);
-        if(btn) btn.classList.add('active');
-    
+
+        document.querySelectorAll('.time-btn').forEach(button => button.classList.remove('active'));
+        document.getElementById(dager === 'channel' ? 't-channel' : `t-${dager}`)?.classList.add('active');
+
         if (priceChart) priceChart.destroy();
         if (rsiChart) rsiChart.destroy();
         destroyChartOnCanvas('priceChart');
         destroyChartOnCanvas('rsiChart');
-    
 
-        // -------- 1) PRICE: Linjediagram --------
         const ctxPrice = document.getElementById('priceChart')?.getContext('2d');
-        if (!ctxPrice) return;
+        const ctxRsi = document.getElementById('rsiChart')?.getContext('2d');
+        if (!ctxPrice || !ctxRsi) return;
 
-        const labels = history.map((h, i) => pickDate(h, i));
-
-        const closes = history.map(h => {
-            const c = normNumber(h.close);
-            return Number.isFinite(c) ? c : null;
+        const labels = history.map((entry, index) => pickDate(entry, index));
+        const closes = history.map(entry => {
+            const close = normNumber(entry.close, NaN);
+            return Number.isFinite(close) ? close : null;
         });
+        const trendChannelDatasets = buildTrendChannelDatasets(s, history, labels, chartColors);
+        const priceDatasets = [{
+            label: 'Kurs', data: closes,
+            borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
+            borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.15, spanGaps: false
+        }, ...trendChannelDatasets];
+
+        if (typeof Chart !== 'function') {
+            drawCanvasFallback('priceChart', closes, { color: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative });
+            const fallbackRsi = history.map(entry => normNumber(entry.rsi, 50));
+            drawCanvasFallback('rsiChart', fallbackRsi, { min: 0, max: 100, color: chartColors.blue, extraLines: [30, 70] });
+            toast.innerHTML = `<b>Chart.js ikke lastet:</b> Viser enkel fallback-visning.`;
+            toast.classList.add('active');
+            setTimeout(hideTip, 4500);
+            return;
+        }
 
         try {
             priceChart = new Chart(ctxPrice, {
                 type: 'line',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: closes,
-                        borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
-                        borderWidth: 2.5,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0.15
-                    }]
-                },
+                data: { labels, datasets: priceDatasets },
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
@@ -2493,127 +2780,37 @@
                     }
                 }
             });
-        } catch (e) {
-            // Hvis Chart.js feiler -> fallback line-chart + feilmelding
-            if (typeof Chart === 'function') {
-                destroyChartOnCanvas('priceChart');
-                priceChart = new Chart(ctxPrice, {
-                    type: 'line',
-                    data: {
-                        labels,
-                        datasets: [{
-                            data: closes,
-                            borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
-                            borderWidth: 2.5,
-                            pointRadius: 0,
-                            fill: false,
-                            tension: 0.15
-                        }]
-                    },
-                    options: {
-                        responsive: true, maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { display: false },
-                            y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } }
-                        }
-                    }
-                });
-            }
-    
-            toast.innerHTML = `<b>Graf-feil:</b> ${e?.message || e}.`;
+        } catch (error) {
+            drawCanvasFallback('priceChart', closes, { color: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative });
+            toast.innerHTML = `<b>Graf-feil:</b> ${escapeHtml(error?.message || error)}.`;
             toast.classList.add('active');
             setTimeout(hideTip, 6500);
         }
-    
-        // -------- 2) RSI chart --------
-        const ctxRsi = document.getElementById('rsiChart')?.getContext('2d');
-        if (!ctxRsi) return;
-    
-        const rsiValues = history.map(h => {
-            const r = normNumber(h.rsi);
-            return Number.isFinite(r) ? r : 50;
-        });
-    
+
+        const rsiValues = history.map(entry => normNumber(entry.rsi, 50));
         const line30 = new Array(history.length).fill(30);
         const line70 = new Array(history.length).fill(70);
-    
-
-        if (typeof Chart !== 'function') {
-            drawCanvasFallback('priceChart', closes, {
-                color: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative
-            });
-            drawCanvasFallback('rsiChart', rsiValues, {
-                min: 0,
-                max: 100,
-                color: chartColors.blue,
-                extraLines: [30, 70]
-            });
-            toast.innerHTML = `<b>Chart.js ikke lastet:</b> Viser enkel fallback-visning.`;
-            toast.classList.add('active');
-            setTimeout(hideTip, 4500);
-            return;
-        }
-
         rsiChart = new Chart(ctxRsi, {
             type: 'line',
             data: {
                 labels,
                 datasets: [
-                    {
-                        data: rsiValues,
-                        borderColor: chartColors.blue,
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0.2
-                    },
-                    {
-                        data: line70,
-                        borderColor: chartColors.reference,
-                        borderWidth: 1.5,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0,
-                        borderDash: [6, 6]
-                    },
-                    {
-                        data: line30,
-                        borderColor: chartColors.reference,
-                        borderWidth: 1.5,
-                        pointRadius: 0,
-                        fill: false,
-                        tension: 0,
-                        borderDash: [6, 6]
-                    }
+                    { label: 'RSI', data: rsiValues, borderColor: chartColors.blue, borderWidth: 2, pointRadius: 0, fill: false, tension: 0.2 },
+                    { label: 'RSI 70', data: line70, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] },
+                    { label: 'RSI 30', data: line30, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: {
-                            color: chartColors.axis,
-                            autoSkip: true,
-                            maxTicksLimit: 5,
-                            font: { size: 10 }
-                        }
-                    },
+                    x: { grid: { display: false }, ticks: { color: chartColors.axis, autoSkip: true, maxTicksLimit: 5, font: { size: 10 } } },
                     y: {
-                        min: 0,
-                        max: 100,
-                        grid: { color: chartColors.grid, lineWidth: 1 },
+                        min: 0, max: 100, grid: { color: chartColors.grid, lineWidth: 1 },
                         ticks: {
-                            stepSize: 10,
-                            color: chartColors.axis,
-                            callback: (v) => ([0, 30, 50, 70, 100].includes(v) ? v : ''),
-                            font: (ctx) => {
-                                const v = ctx.tick?.value;
-                                return { size: 10, weight: (v === 30 || v === 70) ? 'bold' : 'normal' };
-                            }
+                            stepSize: 10, color: chartColors.axis,
+                            callback: value => ([0, 30, 50, 70, 100].includes(value) ? value : ''),
+                            font: context => ({ size: 10, weight: (context.tick?.value === 30 || context.tick?.value === 70) ? 'bold' : 'normal' })
                         }
                     }
                 }
@@ -2625,7 +2822,6 @@
             rsiChart?.resize();
         }, 0);
     }
-
     function setSignalFilters() { const state={}; ['min-strength','trend-filter','setup-filter','setup-status-filter','timing-filter','valid-rr-filter','min-rr','min-rs','min-volume'].forEach(id=>state[id]=document.getElementById(id)?.value||''); localStorage.setItem('signalFilters',JSON.stringify(state)); render(); }
     function resetSignalFilters() { activeSignalPreset=''; ['min-strength','trend-filter','setup-filter','setup-status-filter','timing-filter','valid-rr-filter','min-rr','min-rs','min-volume'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); setSignalFilters(); }
     function applySignalPreset(name) { resetSignalFilters(); activeSignalPreset=name; const set=(id,v)=>document.getElementById(id).value=v; set('min-strength','8'); if(name==='candidates'){set('timing-filter','GOD_MULIG');set('setup-status-filter','FERSK_AKTIV');set('valid-rr-filter','true');set('min-rr','1.5');} else { const note=document.querySelector('.filter-note'); if(note) note.textContent='Filter: Teknisk radar — styrke minst 8 og Avvent, breakout-forsøk eller etablert opptrend uten fersk/aktiv setup.'; } setSignalFilters(); }
