@@ -513,8 +513,8 @@
         .trend-channel-fact-value { display: block; margin-top: 3px; font-size: 12px; font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
         .trend-channel-help, .trend-channel-disclaimer { margin: 11px 0 0; color: var(--secondary); font-size: 11px; line-height: 1.4; }
         @media (max-width: 430px) {
-            .time-row { gap: 2px; }
-            .time-btn { min-width: 0; padding: 8px 2px; font-size: 10px; }
+            .time-row { gap: 4px; }
+            .time-btn { padding: 8px 10px; font-size: 11px; }
             .trend-channel-facts { grid-template-columns: 1fr; }
         }
         .signal-history-section {
@@ -843,8 +843,9 @@
         .rel-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; text-align: center; }
         .list-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 25px; }
         .action-btn { padding: 14px; border-radius: 12px; border: 1px solid var(--control); background: transparent; color: var(--text); font-size: 13px; font-weight: 600; }
-        .time-row { display: flex; justify-content: space-between; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 15px; }
-        .time-btn { flex: 1; text-align: center; padding: 8px 0; font-size: 11px; font-weight: 700; color: var(--secondary); border-radius: 8px; }
+        .time-row { display: flex; justify-content: flex-start; gap: 4px; overflow-x: auto; overflow-y: hidden; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; overscroll-behavior-x: contain; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 15px; }
+        .time-row::-webkit-scrollbar { display: none; }
+        .time-btn { flex: 0 0 auto; text-align: center; padding: 8px 10px; font-size: 11px; font-weight: 700; color: var(--secondary); border-radius: 8px; }
         .time-btn.active { background: var(--control); color: var(--text); }
         .alert-section { background: var(--card); border-radius: 18px; padding: 16px; margin-top: 10px; border: 1px solid var(--border); }
         .alert-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
@@ -1016,7 +1017,7 @@
     <details class="guide-section"><summary>4. Søk, filtre og sortering</summary><div class="guide-content"><p>Søkefeltet søker i ticker, navn og sektor. Du kan avgrense på sektor og minste Composite Score. Sortering kan gjøres på Score, Timing, RSI, Volum, R/R, RS 3M, ATR % eller Navn; pilen endrer stigende/fallende rekkefølge.</p><p><strong>Flere signalfiltre</strong> lar deg velge trendfase, setup, timing, gyldig R/R, minste R/R, minste RS 3M, minste volum og signalstatus. Trendfasene er etablert/tidlig opptrend, sidelengs, svekket trend og etablert nedtrend. Setup omfatter bekreftet breakout, breakout-forsøk, pullback i opptrend, support bounce og ingen fersk setup. Status kan avgrenses til fersk/aktiv, fersk, aktiv, utløpt eller ingen.</p><p><strong>Filter: Aktuelle kandidater</strong> krever score minst 8, God eller Mulig timing, Fersk eller Aktiv setupstatus, gyldig R/R og R/R minst 1,5. <strong>Filter: Teknisk radar</strong> krever score minst 8 og minst ett av: Avvent-timing, Breakout-forsøk, eller etablert opptrend uten fersk eller aktiv setup. Begge er automatiske forhåndsfiltre som bare avgrenser oversikten, ikke kjøpssignaler. De er noe annet enn den personlige Radar-listen i localStorage. Antall treff vises i oversikten, og <strong>Nullstill</strong> fjerner filtrene.</p></div></details>
     <details class="guide-section"><summary>5. Mine og Radar</summary><div class="guide-content"><p><strong>Mine</strong> er listen for aksjer du selv følger eller eier. <strong>Radar</strong> er en separat, manuelt lagret overvåkingsliste. En aksje kan bare ligge i én av listene om gangen; å legge den til i den ene fjerner den fra den andre.</p><p>Du kan lagre GAV og notater i detaljvisningen. Avkastningen på aksjekortet beregnes mot GAV du selv har lagret. GAV og notater påvirker ikke tekniske beregninger. Listene, GAV og notater lagres i nettleserens localStorage, altså lokalt for aktuell nettleser og enhet.</p></div></details>
     <details class="guide-section"><summary>6. Detaljvisningen</summary><div class="guide-content"><p>Detaljvisningen har tilbakeknapp, aksjesøk og Forrige/Neste. Søk her finner ticker og navn. Forrige/Neste følger den synlige, filtrerte og sorterte listen du kom fra; uten slik sammenheng er knappene deaktivert. Øverst vises navn, ticker, siste kurs og valuta. Selskapskortet viser sektor, land, børs og valuta når de finnes.</p><p>Her håndterer du Mine/Radar, GAV og notater. I RSI-varsler velger du RSI-nivå og retningen «Stiger over» eller «Synker under». Nettleseren må ha tillatelse til varsler. Varslet vurderes når appen laster eller oppdaterer data, er ikke en egen serverbasert push-tjeneste, deaktiveres etter første treff og lagres lokalt i nettleseren. Temaknappen gjelder hele appen.</p></div></details>
-    <details class="guide-section"><summary>7. Kursgraf og tidsperioder</summary><div class="guide-content"><p>Velg 1U, 1M, 3M, 6M eller 1Å for å avgrense den historiske sluttkursperioden. Grafen kan utvides. RSI vises i et separat diagram med referanselinjer ved 30 og 70.</p><p>Grafen viser ikke SMA-, EMA- eller volumlinjer i dagens frontend. Den kan vise beregnede trendkanallinjer når kanaldata finnes; Kanal-knappen og trendkanalbryteren vises bare da. En graf og valgt periode er historisk visualisering, ikke prognose.</p></div></details>
+    <details class="guide-section"><summary>7. Kursgraf og tidsperioder</summary><div class="guide-content"><p>Velg 1U, 1M, 3M, 6M, 1Å, 3Å eller 5Å for å avgrense kursperioden. 1U–1Å bruker dagsdata, mens 3Å og 5Å bruker komprimerte ukedata. Dersom aksjen har kortere børsnoteringshistorikk, vises bare tilgjengelig historie. Periodefeltet kan dras horisontalt på smale skjermer; diagrammet og resten av detaljsiden får ikke horisontal scrolling.</p><p>Grafen viser historisk sluttkurs. RSI vises i et separat diagram med referanselinjer ved 30 og 70, men kan være skjult på 3Å og 5Å dersom ukedataene ikke inneholder ukentlig RSI. Grafen viser ikke SMA-, EMA- eller volumlinjer i dagens frontend. Kanal-knappen vises når kanaldata finnes. Trendkanalbryteren vises for dagperiodene og Kanal, men skjules på 3Å og 5Å; kanaloverlegg brukes ikke på ukegrafene. En graf og valgt periode er historisk visualisering, ikke prognose.</p></div></details>
     <details class="guide-section"><summary>8. Teknisk status</summary><div class="guide-content"><p><strong>Entry</strong> er en kvalifisert, aktuell teknisk entry-hendelse. Manglende Entry betyr ikke at aksjen er dårlig, og Entry er ikke en kjøpsanbefaling.</p><p><strong>Primær struktur</strong> er strukturmodellen som prioriteres viktigst nå. Den kan vise retning, horisont, status, ferskhet, alder, rangeringsscore, kvalitet og nivå/sone. Rangeringsscore prioriterer tekniske strukturer, ikke sannsynlighet for avkastning. Kvalitet beskriver modellens tekniske kvalitet, ikke framtidig kursretning.</p><p><strong>Observasjoner</strong> inneholder sekundære strukturer. De gir kontekst på andre tidshorisonter og kan støtte eller stå i konflikt med primær struktur; konflikt mellom horisonter er informasjon, ikke nødvendigvis feil. Bruddforsøk, retest pågår, fortsettelse, støtte, motstand og range er ikke automatisk aktive Entry-signaler. Knappen for ekstra strukturer viser flere aktuelle observasjoner, mens knappen for historiske strukturer viser avsluttede forhold.</p><p><strong>Risiko</strong>: En risikohendelse er en konkret teknisk hendelse; risikokontekst er et relevant bakteppe, for eksempel motstand. Bare aktive eller avventende forhold omtales som aktuelle. Historiske, utløpte, invaliderte og ikke relevante forhold vises separat eller filtreres bort. Positiv Entry og aktiv risiko kan eksistere samtidig.</p><p>Statuser: <strong>Fersk</strong> er nylig observert; <strong>Aktiv</strong> er aktuell; <strong>Aktiv, ikke fersk</strong> er fortsatt aktuell, men eldre; <strong>Avventer</strong> er mulig, men ikke utløst; <strong>Ikke relevant</strong>, <strong>Utløpt</strong>, <strong>Invalidert</strong> og <strong>Historisk</strong> er ikke aktuelle signaler.</p></div></details>
     <details class="guide-section"><summary>9. Trendkanaler</summary><div class="guide-content"><p>Trendkanaler beskriver et beregnet kursområde mellom historiske vendepunkter. Når en robust aktiv kanal finnes, vises retning, start- og oppdaget dato, alder, kvalitet, nedre/midtre/øvre grense nå, kanalposisjon og avstand til nærmeste grense. Avstand kan vises i prosent og ATR.</p><p>Nedre kanalgrense er ikke automatisk kjøpsnivå og øvre grense er ikke automatisk salgsnivå. Posisjonen beskriver hvor kursen befinner seg i modellen. Et mulig brudd er ikke bekreftet; et bekreftet brudd er fortsatt bare en teknisk hendelse. Kvalitet er ikke sannsynlighet for at kursen stiger eller faller.</p></div></details>
     <details class="guide-section"><summary>10. Støtte og motstand</summary><div class="guide-content"><p>Nivåseksjonen viser neste og sekundær støtte/motstand når de er beregnet. En sone er et intervall, ikke et eksakt punkt: kursen kan reagere innenfor området. Manglende grunnlag vises som <em>Ingen støtte</em> eller <em>Ingen motstand</em>.</p><p>Støtte og motstand er mulige reaksjonsområder, ikke garantier. Se dem sammen med volum, trend, avstand til nivået og om et brudd eller en retest faktisk bekreftes.</p></div></details>
@@ -1061,13 +1062,15 @@
         </button>
         <div id="chart-content" hidden>
             <div id="trend-channel-status" class="trend-channel-status" aria-live="polite">Ingen robust aktiv trendkanal identifisert.</div>
-            <div class="time-row">
-                <button type="button" class="time-btn" id="t-7" onclick="changeTime(7)">1U</button>
-                <button type="button" class="time-btn active" id="t-30" onclick="changeTime(30)">1M</button>
-                <button type="button" class="time-btn" id="t-90" onclick="changeTime(90)">3M</button>
-                <button type="button" class="time-btn" id="t-180" onclick="changeTime(180)">6M</button>
-                <button type="button" class="time-btn" id="t-365" onclick="changeTime(365)">1Å</button>
-                <button type="button" class="time-btn" id="t-channel" onclick="changeTime('channel')" hidden>Kanal</button>
+            <div class="time-row" role="group" aria-label="Velg periode for kursgraf">
+                <button type="button" class="time-btn" id="t-7" onclick="changeTime(7)" aria-pressed="false">1U</button>
+                <button type="button" class="time-btn active" id="t-30" onclick="changeTime(30)" aria-pressed="true">1M</button>
+                <button type="button" class="time-btn" id="t-90" onclick="changeTime(90)" aria-pressed="false">3M</button>
+                <button type="button" class="time-btn" id="t-180" onclick="changeTime(180)" aria-pressed="false">6M</button>
+                <button type="button" class="time-btn" id="t-365" onclick="changeTime(365)" aria-pressed="false">1Å</button>
+                <button type="button" class="time-btn" id="t-3y" onclick="changeTime('3y')" aria-pressed="false">3Å</button>
+                <button type="button" class="time-btn" id="t-5y" onclick="changeTime('5y')" aria-pressed="false">5Å</button>
+                <button type="button" class="time-btn" id="t-channel" onclick="changeTime('channel')" aria-pressed="false" hidden>Kanal</button>
             </div>
             <div id="trend-channel-controls" class="chart-layer-row" hidden>
                 <button id="trend-channel-toggle" type="button" class="trend-channel-toggle" onclick="toggleTrendChannelVisibility()" aria-label="Vis trendkanal i kursgraf" aria-pressed="true">Trendkanal: på</button>
@@ -1647,7 +1650,7 @@
         }
     }
 
-    const chartPeriodLabels = { 7: '1U', 30: '1M', 90: '3M', 180: '6M', 365: '1Å', channel: 'Kanal' };
+    const chartPeriodLabels = { 7: '1U', 30: '1M', 90: '3M', 180: '6M', 365: '1Å', '3y': '3Å', '5y': '5Å', channel: 'Kanal' };
 
     function updateChartPeriodLabel() {
         const label = document.getElementById('active-chart-period');
@@ -1667,8 +1670,11 @@
 
     function resetChartSection() {
         currentChartPeriod = 30;
-        document.querySelectorAll('.time-btn').forEach(button => button.classList.remove('active'));
+        document.querySelectorAll('.time-btn').forEach(button => { button.classList.remove('active'); button.setAttribute('aria-pressed', 'false'); });
         document.getElementById('t-30')?.classList.add('active');
+        document.getElementById('t-30')?.setAttribute('aria-pressed', 'true');
+        const row = document.querySelector('.time-row');
+        if (row) row.scrollLeft = 0;
         setChartSectionOpen(false);
     }
 
@@ -1686,6 +1692,17 @@
         currentChartPeriod = days;
         updateChartPeriodLabel();
         updateChart(days, currentTicker);
+        const activeButton = document.getElementById(days === 'channel' ? 't-channel' : `t-${days}`);
+        const row = document.querySelector('.time-row');
+        if (activeButton && row) {
+            const rowRect = row.getBoundingClientRect();
+            const buttonRect = activeButton.getBoundingClientRect();
+            if (buttonRect.left < rowRect.left) {
+                row.scrollBy({ left: buttonRect.left - rowRect.left - 4, behavior: 'smooth' });
+            } else if (buttonRect.right > rowRect.right) {
+                row.scrollBy({ left: buttonRect.right - rowRect.right + 4, behavior: 'smooth' });
+            }
+        }
     }
 
     function getStockHistory(s) {
@@ -1695,6 +1712,36 @@
             if (Array.isArray(c) && c.length) return c;
         }
         return [];
+    }
+
+    function isLongChartPeriod(period) {
+        return period === '3y' || period === '5y';
+    }
+
+    function getHistoryClose(entry) {
+        return normNumber(entry?.close ?? entry?.Close, NaN);
+    }
+
+    function getHistoryRsi(entry) {
+        return normNumber(entry?.rsi ?? entry?.RSI ?? entry?.RSI_14, NaN);
+    }
+
+    function getWeeklyHistory(stock) {
+        const candidates = [stock?.HistorikkUke, stock?.historikkUke, stock?.weeklyHistory, stock?.WeeklyHistory];
+        const weekly = candidates.find(Array.isArray) || [];
+        return weekly.filter((entry, index) => {
+            const date = pickDate(entry, index);
+            return !/^P\d+$/.test(date) && Number.isFinite(getHistoryClose(entry));
+        });
+    }
+
+    function getChartHistory(stock, period) {
+        if (!isLongChartPeriod(period)) {
+            return { history: getTrendChannelRange(stock, period), isLong: false, requestedRows: 0, availableRows: 0, valid: true };
+        }
+        const requestedRows = period === '3y' ? 156 : 260;
+        const weekly = getWeeklyHistory(stock);
+        return { history: weekly.slice(-requestedRows), isLong: true, requestedRows, availableRows: weekly.length, valid: weekly.length >= 2 };
     }
 
     function normNumber(v, fallback = NaN) {
@@ -2629,7 +2676,7 @@
             status.className = `trend-channel-status${isPossibleTrendChannelBreak(channel) ? ' is-possible' : isConfirmedTrendChannelBreak(channel) ? ' is-confirmed' : ''}`;
             status.innerHTML = buildTrendChannelStatus(stock);
         }
-        if (controls) controls.hidden = !hasGraph;
+        if (controls) controls.hidden = !hasGraph || isLongChartPeriod(currentChartPeriod);
         if (channelButton) channelButton.hidden = !hasGraph;
         if (toggle) {
             toggle.setAttribute('aria-pressed', String(showTrendChannel));
@@ -3143,34 +3190,56 @@
             reference: getThemeColor('--chart-reference', '#ffffff')
         };
         const toast = document.getElementById('tooltipToast');
+        const chartSelection = getChartHistory(s, dager);
+        const isLongPeriod = chartSelection.isLong;
         const sourceHistory = getStockHistory(s);
         const fallbackLength = typeof dager === 'number' ? dager : 180;
-        const selectedHistory = sourceHistory.length ? getTrendChannelRange(s, dager) : buildFallbackHistory(s, fallbackLength);
-        const history = selectedHistory.length ? selectedHistory : buildFallbackHistory(s, fallbackLength);
-        if (!sourceHistory.length) {
+        const history = isLongPeriod ? chartSelection.history : (chartSelection.history.length ? chartSelection.history : buildFallbackHistory(s, fallbackLength));
+        if (!isLongPeriod && !sourceHistory.length) {
             toast.innerHTML = `<b>Mangler historikk:</b> Viser midlertidig linje basert på siste kurs.`;
             toast.classList.add('active');
             setTimeout(hideTip, 3500);
         }
+        if (isLongPeriod && chartSelection.valid && chartSelection.availableRows < chartSelection.requestedRows) {
+            toast.innerHTML = `<b>Lang kurshistorikk:</b> Viser bare tilgjengelig historikk.`;
+            toast.classList.add('active');
+            setTimeout(hideTip, 3500);
+        }
+        updateTrendChannelVisibility(s);
 
-        document.querySelectorAll('.time-btn').forEach(button => button.classList.remove('active'));
-        document.getElementById(dager === 'channel' ? 't-channel' : `t-${dager}`)?.classList.add('active');
+        document.querySelectorAll('.time-btn').forEach(button => { button.classList.remove('active'); button.setAttribute('aria-pressed', 'false'); });
+        const activeButton = document.getElementById(dager === 'channel' ? 't-channel' : `t-${dager}`);
+        activeButton?.classList.add('active');
+        activeButton?.setAttribute('aria-pressed', 'true');
 
         if (priceChart) priceChart.destroy();
         if (rsiChart) rsiChart.destroy();
+        priceChart = null;
+        rsiChart = null;
         destroyChartOnCanvas('priceChart');
         destroyChartOnCanvas('rsiChart');
 
+        const rsiContainer = document.querySelector('.chart-rsi-container');
+        const hasWeeklyRsi = !isLongPeriod || (chartSelection.valid && history.every(entry => Number.isFinite(getHistoryRsi(entry))));
+        const shouldHideRsi = isLongPeriod && !hasWeeklyRsi;
+        if (rsiContainer) rsiContainer.hidden = shouldHideRsi;
         const ctxPrice = document.getElementById('priceChart')?.getContext('2d');
         const ctxRsi = document.getElementById('rsiChart')?.getContext('2d');
-        if (!ctxPrice || !ctxRsi) return;
+        if (!chartSelection.valid) {
+            if (ctxPrice) ctxPrice.clearRect(0, 0, ctxPrice.canvas.width, ctxPrice.canvas.height);
+            toast.innerHTML = `<b>Lang kurshistorikk er ikke tilgjengelig for denne aksjen.</b>`;
+            toast.classList.add('active');
+            setTimeout(hideTip, 3500);
+            return;
+        }
+        if (!ctxPrice || (!shouldHideRsi && !ctxRsi)) return;
 
         const labels = history.map((entry, index) => pickDate(entry, index));
         const closes = history.map(entry => {
-            const close = normNumber(entry.close, NaN);
+            const close = getHistoryClose(entry);
             return Number.isFinite(close) ? close : null;
         });
-        const trendChannelDatasets = buildTrendChannelDatasets(s, history, labels, chartColors);
+        const trendChannelDatasets = isLongPeriod ? [] : buildTrendChannelDatasets(s, history, labels, chartColors);
         const priceDatasets = [{
             label: 'Kurs', data: closes,
             borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
@@ -3179,8 +3248,10 @@
 
         if (typeof Chart !== 'function') {
             drawCanvasFallback('priceChart', closes, { color: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative });
-            const fallbackRsi = history.map(entry => normNumber(entry.rsi, 50));
-            drawCanvasFallback('rsiChart', fallbackRsi, { min: 0, max: 100, color: chartColors.blue, extraLines: [30, 70] });
+            if (!shouldHideRsi) {
+                const fallbackRsi = isLongPeriod ? history.map(getHistoryRsi) : history.map(entry => normNumber(entry.rsi, 50));
+                drawCanvasFallback('rsiChart', fallbackRsi, { min: 0, max: 100, color: chartColors.blue, extraLines: [30, 70] });
+            }
             toast.innerHTML = `<b>Chart.js ikke lastet:</b> Viser enkel fallback-visning.`;
             toast.classList.add('active');
             setTimeout(hideTip, 4500);
@@ -3195,7 +3266,7 @@
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { display: false },
+                        x: isLongPeriod ? { grid: { display: false }, ticks: { color: chartColors.axis, autoSkip: true, maxTicksLimit: 5, font: { size: 10 } } } : { display: false },
                         y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } }
                     }
                 }
@@ -3207,35 +3278,37 @@
             setTimeout(hideTip, 6500);
         }
 
-        const rsiValues = history.map(entry => normNumber(entry.rsi, 50));
-        const line30 = new Array(history.length).fill(30);
-        const line70 = new Array(history.length).fill(70);
-        rsiChart = new Chart(ctxRsi, {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [
-                    { label: 'RSI', data: rsiValues, borderColor: chartColors.blue, borderWidth: 2, pointRadius: 0, fill: false, tension: 0.2 },
-                    { label: 'RSI 70', data: line70, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] },
-                    { label: 'RSI 30', data: line30, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] }
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { color: chartColors.axis, autoSkip: true, maxTicksLimit: 5, font: { size: 10 } } },
-                    y: {
-                        min: 0, max: 100, grid: { color: chartColors.grid, lineWidth: 1 },
-                        ticks: {
-                            stepSize: 10, color: chartColors.axis,
-                            callback: value => ([0, 30, 50, 70, 100].includes(value) ? value : ''),
-                            font: context => ({ size: 10, weight: (context.tick?.value === 30 || context.tick?.value === 70) ? 'bold' : 'normal' })
+        if (!shouldHideRsi) {
+            const rsiValues = isLongPeriod ? history.map(getHistoryRsi) : history.map(entry => normNumber(entry.rsi, 50));
+            const line30 = new Array(history.length).fill(30);
+            const line70 = new Array(history.length).fill(70);
+            rsiChart = new Chart(ctxRsi, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'RSI', data: rsiValues, borderColor: chartColors.blue, borderWidth: 2, pointRadius: 0, fill: false, tension: 0.2 },
+                        { label: 'RSI 70', data: line70, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] },
+                        { label: 'RSI 30', data: line30, borderColor: chartColors.reference, borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0, borderDash: [6, 6] }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: chartColors.axis, autoSkip: true, maxTicksLimit: 5, font: { size: 10 } } },
+                        y: {
+                            min: 0, max: 100, grid: { color: chartColors.grid, lineWidth: 1 },
+                            ticks: {
+                                stepSize: 10, color: chartColors.axis,
+                                callback: value => ([0, 30, 50, 70, 100].includes(value) ? value : ''),
+                                font: context => ({ size: 10, weight: (context.tick?.value === 30 || context.tick?.value === 70) ? 'bold' : 'normal' })
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
 
         setTimeout(() => {
             priceChart?.resize();
