@@ -218,6 +218,24 @@
         .signal-summary-row:last-of-type { border-bottom: 0; }
         .signal-summary-row span:first-child { color: var(--secondary); }
         .signal-summary-row span:last-child { font-weight: 800; text-align: right; }
+        .technical-status-category { padding: 12px 0; border-top: 1px solid var(--border); }
+        .technical-status-category:first-of-type { padding-top: 0; border-top: 0; }
+        .technical-status-category:last-child { padding-bottom: 0; }
+        .technical-status-category-title { color: var(--blue); font-size: 11px; font-weight: 900; letter-spacing: .4px; text-transform: uppercase; }
+        .technical-status-category-risk .technical-status-category-title { color: var(--red); }
+        .technical-status-empty { margin-top: 6px; color: var(--secondary); font-size: 13px; line-height: 1.4; }
+        .technical-status-event { margin-top: 6px; font-size: 14px; font-weight: 900; line-height: 1.3; }
+        .technical-status-facts { display: flex; flex-wrap: wrap; gap: 5px 8px; margin-top: 7px; color: var(--secondary); font-size: 11px; font-weight: 700; line-height: 1.35; }
+        .technical-status-fact { overflow-wrap: anywhere; }
+        .technical-status-copy { margin: 7px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.4; }
+        .technical-status-compact-list { display: grid; gap: 7px; margin-top: 8px; }
+        .technical-status-compact { padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-muted); }
+        .technical-status-compact-name { font-size: 12px; font-weight: 850; overflow-wrap: anywhere; }
+        .technical-status-more { display: grid; gap: 7px; margin-top: 7px; }
+        .technical-status-history { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+        .technical-status-more[hidden] { display: none; }
+        .technical-status-toggle { width: 100%; margin-top: 8px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; background: transparent; color: var(--blue); cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; text-align: left; }
+        .technical-status-toggle:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
         .technical-average-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -402,7 +420,7 @@
         }
         #detailPage {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000;
-            display: none; overflow-y: auto; padding: env(safe-area-inset-top) 20px calc(156px + env(safe-area-inset-bottom)) 20px; box-sizing: border-box;
+            display: none; overflow-y: auto; padding: env(safe-area-inset-top) 20px calc(184px + env(safe-area-inset-bottom)) 20px; box-sizing: border-box;
         }
         #alertPage {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2100;
@@ -997,7 +1015,7 @@
     <details class="guide-section"><summary>Slik finner du mulige kjøpskandidater</summary><div class="guide-content"><ol><li>Bruk screeneren til å begrense aksjeuniverset.</li><li>Se etter interessante kandidater i Aktuelle kandidater eller Teknisk radar.</li><li>Åpne detaljvisningen.</li><li>Undersøk trend, momentum, volum, relativ styrke, støtte og motstand.</li><li>Vurder risiko og mulig risk/reward.</li><li>Kontroller kvartalsrapporter, nyheter, verdsettelse og selskapets kvalitet.</li><li>Lag en egen investeringshypotese før en eventuell beslutning.</li></ol></div></details>
     <details class="guide-section"><summary>Slik finner du mulige salgskandidater</summary><div class="guide-content"><p>Bruk teknisk svekkelse som en grunn til ny vurdering, ikke som et automatisk salg. Se blant annet etter fallende Composite Score, svekket trend eller relativ styrke, brudd under støtte, negativ momentumutvikling, høy volatilitet eller svak volumstøtte.</p></div></details>
     <details class="guide-section"><summary>Forklaring av indikatorer</summary><div class="guide-content"><h3>RSI, SMA, EMA og MACD</h3><p>RSI måler momentum på en skala fra 0 til 100; høye og lave verdier kan indikere overkjøpte eller oversolgte forhold, men er ikke alene et vendepunkt. SMA er et enkelt glidende snitt, mens EMA vekter nyere priser høyere. StockScreener viser SMA- og EMA-nivåer fra datasettet. MACD sammenligner glidende snitt; frontend bruker også feltet MACD_Trend i trendvurderinger. De konkrete backend-beregningene fremgår ikke fullt ut her.</p><h3>ATR, volum, relativ styrke og nivåer</h3><p>ATR % beskriver volatilitet relativt til kurs og kan brukes til å vurdere risiko og posisjonsstørrelse. Volum mot gjennomsnitt sammenligner dagens volum med snittvolum. RS 3M sammenligner utviklingen mot OSEBX over omtrent tre måneder. Støtte og motstand er nivåer der kjøps- eller salgspress kan oppstå; appen viser backend-nivåer og bruker 50-dagers støtte/motstand som fallback. OHLCV/grafen viser tilgjengelig historikk for kurs, og eventuelt volumdata fra datasettet.</p><h3>Trend, setup, risiko og risk/reward</h3><p>Trend beskriver retningen i kursbildet, mens setup peker på et mulig teknisk mønster som breakout, pullback eller støtte-bounce. Risiko samler tekniske røde flagg som overkjøpt RSI, lav R/R eller svak volumstøtte. Risk/reward veier mulig oppside mot definert nedside når tilstrekkelige nivåer finnes. Alle kan gi falske eller forsinkede signaler.</p></div></details>
-    <details class="guide-section"><summary>Composite Score, trend, setup og risiko</summary><div class="guide-content"><p>Composite Score er et prioriteringsverktøy. Når score fra backend finnes, viser appen den; ellers bruker frontend tilgjengelige tekniske felt som relativ styrke, pris mot snitt, RSI og MACD som en fallback. En høy score kan forekomme i en dyr, illikvid eller fundamentalt svak aksje, mens en lav score kan forekomme i et godt selskap med midlertidig svakt teknisk bilde. Trend og momentum beskriver kursutvikling, ikke nødvendigvis underliggende verdi.</p></div></details>
+    <details class="guide-section"><summary>Composite Score, teknisk status og risiko</summary><div class="guide-content"><p>Composite Score oppsummerer teknisk samsvar og er et prioriteringsverktøy, ikke en kjøpssannsynlighet. Høyere score betyr ikke dokumentert høyere fremtidig avkastning. Bruk den sammen med markedsstruktur, risiko, verdsettelse, nyheter og selskapskvalitet.</p><h3>Teknisk status i detaljvisningen</h3><p>Entry-hendelsen er en avgrenset, aktuell teknisk hendelse. Markedsstruktur beskriver det viktigste strukturbildet, mens en risikohendelse eller risikokontekst peker på tekniske forhold som bør vurderes separat. Øvrige tekniske hendelser, som forsøk eller fortsettelse, vises som observasjoner og er ikke aktive entry-setups.</p><p>Tekniske signaler brukes til å prioritere videre analyse. De erstatter ikke fundamental analyse eller egen risikovurdering.</p></div></details>
     <details class="guide-section"><summary>Forslag til komplett arbeidsflyt</summary><div class="guide-content"><div class="guide-flow">Filtrer markedet → Finn kandidater → Analyser teknisk bilde → Les rapporter og nyheter → Vurder kvalitet og verdsettelse → Ta en selvstendig beslutning</div></div></details>
     <details class="guide-section"><summary>Vanlige spørsmål</summary><div class="guide-content"><h3>Er Composite Score et kjøpssignal?</h3><p>Nei. Den hjelper med prioritering og må vurderes sammen med øvrig analyse.</p><h3>Kan appen brukes alene?</h3><p>Nei. Teknisk analyse bør suppleres med egen vurdering av selskap, risiko, likviditet og ny informasjon.</p><h3>Hvor ofte oppdateres dataene?</h3><p>Appen forsøker å hente datasettet hvert minutt. Tidspunktet nederst er oppdateringstidspunktet som følger med datasettet.</p><h3>Hvor kommer kursdataene fra, og hvorfor mangler enkelte aksjer?</h3><p>Frontend mottar et ferdig datasett; den konkrete datakilden og beregningsmetoden er ikke oppgitt i denne filen. Aksjer uten gyldig ticker og historikk vises ikke.</p><h3>Hva er OSEBX, og hvorfor brukes den?</h3><p>OSEBX er Oslo Børs Benchmark Index. Den brukes som sammenligningsindeks for relativ styrke når data er tilgjengelig.</p><h3>Kan tekniske signaler være feil?</h3><p>Ja. Signaler kan være forsinkede eller slå feil, særlig i volatile eller lite likvide aksjer.</p></div></details>
 </div>
@@ -1772,6 +1790,247 @@
         `;
     }
 
+    function getSignalV3(stock) {
+        const structure = stock?.Markedsstruktur;
+        if (!structure || typeof structure !== 'object' || Array.isArray(structure)) return null;
+        const fields = ['entry_event', 'primary_structure', 'secondary_structures', 'risk_event', 'risk_context', 'events', 'hendelser'];
+        return fields.some(field => Object.prototype.hasOwnProperty.call(structure, field)) ? structure : null;
+    }
+
+    function technicalText(value, fallback = '') {
+        const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+        return text && !['null', 'undefined', 'nan'].includes(text.toLowerCase()) ? escapeHtml(text) : fallback;
+    }
+
+    function humanizeTechnicalCode(value) {
+        const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+        if (!text) return '';
+        return text.toLowerCase().replace(/_/g, ' ').replace(/^./, char => char.toUpperCase());
+    }
+
+    const TECHNICAL_EVENT_LABELS = { BREAKOUT_BEKREFTET: 'Bekreftet brudd', BREAKOUT_FORSOK: 'Bruddforsøk', BRUDD_UNDER_STOTTE: 'Brudd under støtte', FEILSLATT_BREAKOUT: 'Feilslått brudd', FORTSETTELSE: 'Fortsettelse', KANALBRUDD_NED: 'Brudd ned av trendkanal', KANALBRUDD_OPP: 'Brudd opp av trendkanal', MOTSTAND_IDENTIFISERT: 'Motstand identifisert', MULIG_KANALBRUDD_NED: 'Mulig brudd ned av trendkanal', MULIG_KANALBRUDD_OPP: 'Mulig brudd opp av trendkanal', RANGE_IDENTIFISERT: 'Range identifisert', RECLAIM_BEKREFTET: 'Bekreftet gjenerobring', RECLAIM_FORSOK: 'Forsøk på gjenerobring', RETEST_BEKREFTET: 'Bekreftet retest', RETEST_PAGAAR: 'Retest pågår', SETUP_INVALIDERT: 'Utløpt setup', STOTTE_IDENTIFISERT: 'Støtte identifisert', TIDLIGERE_STOTTE_NAA_MOTSTAND: 'Tidligere støtte er nå motstand', TILBAKE_UNDER_BREAKOUTNIVAA: 'Tilbake under bruddnivå', AKTIV_MOTSTANDSKONTEKST: 'Aktiv motstandskontekst' };
+
+    function formatTechnicalEventType(value) {
+        const raw = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+        const label = TECHNICAL_EVENT_LABELS[raw.toUpperCase()] || humanizeTechnicalCode(raw);
+        return technicalText(label, 'Ikke oppgitt');
+    }
+
+    function formatTechnicalHorizon(value) {
+        return ({ KORT: 'Kort', MELLOMLANG: 'Mellomlang', LANG: 'Lang' })[String(value || '').toUpperCase()] || technicalText(humanizeTechnicalCode(value));
+    }
+
+    function formatTechnicalState(value) {
+        const raw = String(value || '').trim().toUpperCase();
+        const labels = { FERSK: 'Fersk', AKTIV: 'Aktiv', UTLOPT: 'Utløpt', UTLØPT: 'Utløpt', AVVENT: 'Avventer', AKTIV_MEN_IKKE_FERSK: 'Aktiv, ikke fersk', IKKE_RELEVANT: 'Ikke relevant', INVALIDERT: 'Invalidert', HISTORISK: 'Historisk' };
+        return labels[raw] || technicalText(humanizeTechnicalCode(value));
+    }
+
+    function formatTechnicalDirection(value) {
+        const raw = String(value || '').trim().toUpperCase();
+        const labels = { BULLISH: 'Oppover', BEARISH: 'Nedover', 'NØYTRAL': 'Nøytral', NOYTRAL: 'Nøytral' };
+        return labels[raw] || technicalText(humanizeTechnicalCode(value));
+    }
+
+    function formatTechnicalAge(value) {
+        const age = normNumber(value, NaN);
+        if (!Number.isFinite(age) || age < 0) return '';
+        if (age === 0) return 'I dag';
+        return `${Math.round(age)} handelsdag${Math.round(age) === 1 ? '' : 'er'}`;
+    }
+
+    function getTechnicalScore(event) {
+        const score = normNumber(event?.entry_rangeringsdetaljer?.score ?? event?.risk_rangeringsdetaljer?.score ?? event?.rangeringsdetaljer?.score, NaN);
+        return Number.isFinite(score) ? numberOrDash(score, 1) : '';
+    }
+
+    function getTechnicalZone(event) {
+        const low = normNumber(event?.sone_lav, NaN);
+        const high = normNumber(event?.sone_hoy, NaN);
+        const level = normNumber(event?.nivaa, NaN);
+        if (isValidLevelNumber(low) && isValidLevelNumber(high)) {
+            const lowText = numberOrDash(low, 2);
+            const highText = numberOrDash(high, 2);
+            return lowText === highText ? lowText : `${lowText}&ndash;${highText}`;
+        }
+        return isValidLevelNumber(level) ? numberOrDash(level, 2) : '';
+    }
+
+    function getTechnicalLifecycle(event) {
+        const values = [event?.inngangsstatus, event?.status, event?.type].map(value => String(value || '').trim().toUpperCase());
+        if (values.includes('INVALIDERT') || values.includes('SETUP_INVALIDERT')) return 'INVALIDERT';
+        if (values.includes('UTLOPT') || values.includes('UTLØPT')) return 'UTLOPT';
+        if (values.includes('IKKE_RELEVANT')) return 'IKKE_RELEVANT';
+        if (values.includes('HISTORISK')) return 'HISTORISK';
+        if (values.includes('AVVENT')) return 'AVVENT';
+        if (values.includes('AKTIV') || values.includes('FERSK')) return 'AKTIV';
+        return '';
+    }
+
+    function formatTechnicalLifecycle(event) {
+        return ({ AKTIV: 'Aktiv', AVVENT: 'Avventer', IKKE_RELEVANT: 'Ikke relevant', UTLOPT: 'Utløpt', INVALIDERT: 'Invalidert', HISTORISK: 'Historisk' })[getTechnicalLifecycle(event)] || '';
+    }
+
+    function getTechnicalFreshness(event) {
+        if (getTechnicalLifecycle(event) !== 'AKTIV') return '';
+        const entryStatus = String(event?.inngangsstatus || '').trim().toUpperCase();
+        if (entryStatus === 'FERSK') return 'Fersk';
+        if (entryStatus === 'AKTIV_MEN_IKKE_FERSK') return 'Ikke fersk';
+        return '';
+    }
+
+    function getTechnicalQuality(event) {
+        if (String(event?.type || '').toUpperCase() === 'AKTIV_MOTSTANDSKONTEKST') return '';
+        if (event?.kvalitet === null || event?.kvalitet === undefined || event?.kvalitet === '' || typeof event?.kvalitet === 'boolean') return '';
+        const quality = normNumber(event.kvalitet, NaN);
+        return Number.isFinite(quality) && quality > 0 ? numberOrDash(quality, 1) : '';
+    }
+
+    function isTechnicalDiagnostic(text) {
+        return /(?:kildehendelse|risk_context|parent_source_event_id|structure_model_id|structure_family_id|source_structure|event_id|beholdes\s+kun\s+som\s+historisk\s+referanse)/i.test(text)
+            || /\b[A-ZÆØÅ][A-ZÆØÅ0-9_]{2,}\b.*(?:historisk\s+referanse|objekt|\bid\b)/i.test(text);
+    }
+
+    function getTechnicalExplanation(event) {
+        if (!Array.isArray(event?.forklaringer)) return '';
+        return event.forklaringer.map(value => {
+            const raw = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+            const publicText = raw.replace(/\s+(?:Kildehendelse|risk_context|parent_source_event_id|structure_model_id|structure_family_id|source_structure|event_id)\b[\s\S]*$/i, '').trim();
+            return publicText && !isTechnicalDiagnostic(publicText) ? technicalText(publicText) : '';
+        }).filter(Boolean).slice(0, 2).join(' ');
+    }
+
+    function renderTechnicalEvent(event, { direction = false } = {}) {
+        if (!event || typeof event !== 'object' || Array.isArray(event)) return '';
+        const facts = [
+            formatTechnicalLifecycle(event) ? `Status: ${formatTechnicalLifecycle(event)}` : '',
+            formatTechnicalHorizon(event.tidshorisont) ? `Horisont: ${formatTechnicalHorizon(event.tidshorisont)}` : '',
+            getTechnicalFreshness(event),
+            formatTechnicalAge(event.alder_handelsdager),
+            direction && formatTechnicalDirection(event.retning) ? `Retning: ${formatTechnicalDirection(event.retning)}` : '',
+            getTechnicalScore(event) ? `Rangeringsscore: ${getTechnicalScore(event)}` : '',
+            getTechnicalQuality(event) ? `Kvalitet: ${getTechnicalQuality(event)}` : '',
+            getTechnicalZone(event) ? `Nivå/sone: ${getTechnicalZone(event)}` : ''
+        ].filter(Boolean);
+        const explanation = getTechnicalExplanation(event);
+        return `<div class="technical-status-event">${formatTechnicalEventType(event.type)}</div>${facts.length ? `<div class="technical-status-facts">${facts.map(fact => `<span class="technical-status-fact">${fact}</span>`).join('')}</div>` : ''}${explanation ? `<p class="technical-status-copy">${explanation}</p>` : ''}`;
+    }
+
+    function renderTechnicalCompactEvent(event) {
+        if (!event || typeof event !== 'object' || Array.isArray(event)) return '';
+        const lifecycle = formatTechnicalLifecycle(event);
+        const facts = [lifecycle, formatTechnicalHorizon(event.tidshorisont), getTechnicalLifecycle(event) === 'AKTIV' ? getTechnicalFreshness(event) : '', formatTechnicalAge(event.alder_handelsdager), getTechnicalZone(event) ? `Nivå/sone: ${getTechnicalZone(event)}` : ''].filter(Boolean);
+        return `<div class="technical-status-compact"><div class="technical-status-compact-name">${formatTechnicalEventType(event.type)}</div>${facts.length ? `<div class="technical-status-facts">${facts.map(fact => `<span class="technical-status-fact">${fact}</span>`).join('')}</div>` : ''}</div>`;
+    }
+
+    function getTechnicalEventKeys(event) {
+        if (!event || typeof event !== 'object' || Array.isArray(event)) return [];
+        const keys = [];
+        const add = (prefix, value) => { const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : ''; if (text) keys.push(`${prefix}:${text}`); };
+        add('id', event.id);
+        add('family', event.structure_family_id);
+        (Array.isArray(event.source_structure_ids) ? event.source_structure_ids : []).forEach(id => add('id', id));
+        (Array.isArray(event.source_structures) ? event.source_structures : []).forEach(source => add('id', source?.id));
+        if (!keys.length) keys.push(`fallback:${String(event.type || '')}|${String(event.tidshorisont || '')}|${String(event.sone_lav ?? event.nivaa ?? '')}|${String(event.sone_hoy ?? '')}|${String(event.bekreftet_dato || '')}`);
+        return [...new Set(keys)];
+    }
+
+    function getTechnicalCandidateEvents(structure) {
+        const secondary = Array.isArray(structure?.secondary_structures) ? structure.secondary_structures : [];
+        const currentSource = secondary.length ? secondary : Array.isArray(structure?.events) ? structure.events : Array.isArray(structure?.hendelser) ? structure.hendelser : [];
+        const historical = Array.isArray(structure?.historical_structures) ? structure.historical_structures : [];
+        return [...currentSource, ...historical].filter(event => event && typeof event === 'object' && !Array.isArray(event));
+    }
+
+    function technicalEventDate(event) {
+        const value = event?.sist_observert || event?.latest_observation_date || event?.bekreftet_dato || event?.oppdaget_dato;
+        return /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? String(value) : '';
+    }
+
+    function getTechnicalObservationSets(structure) {
+        const excluded = new Set([structure?.entry_event, structure?.primary_structure, structure?.risk_event, structure?.risk_context].flatMap(getTechnicalEventKeys));
+        const candidates = getTechnicalCandidateEvents(structure).filter(event => !getTechnicalEventKeys(event).some(key => excluded.has(key)));
+        const current = [];
+        const currentKeys = new Set();
+        candidates.forEach((event, index) => {
+            const lifecycle = getTechnicalLifecycle(event);
+            if (!['AKTIV', 'AVVENT'].includes(lifecycle) || getTechnicalEventKeys(event).some(key => currentKeys.has(key))) return;
+            getTechnicalEventKeys(event).forEach(key => currentKeys.add(key));
+            current.push({ event, index, priority: getTechnicalFreshness(event) === 'Fersk' ? 0 : lifecycle === 'AVVENT' ? 1 : 2 });
+        });
+        const historicalKeys = new Set([...excluded, ...currentKeys]);
+        const historical = [];
+        candidates.forEach((event, index) => {
+            if (['AKTIV', 'AVVENT'].includes(getTechnicalLifecycle(event)) || getTechnicalEventKeys(event).some(key => historicalKeys.has(key))) return;
+            getTechnicalEventKeys(event).forEach(key => historicalKeys.add(key));
+            historical.push({ event, index });
+        });
+        return { current: current.sort((a, b) => a.priority - b.priority || a.index - b.index).map(item => item.event), historical: historical.sort((a, b) => technicalEventDate(b.event).localeCompare(technicalEventDate(a.event)) || a.index - b.index).map(item => item.event) };
+    }
+
+    function additionalStructureLabel(count, visible) {
+        if (visible) return count === 1 ? 'Skjul ekstra struktur' : 'Skjul ekstra strukturer';
+        return count === 1 ? 'Vis 1 struktur til' : `Vis ${count} strukturer til`;
+    }
+
+    function historicalStructureLabel(count, visible) {
+        if (visible) return count === 1 ? 'Skjul historisk struktur' : 'Skjul historiske strukturer';
+        return count === 1 ? 'Vis 1 historisk struktur' : `Vis ${count} historiske strukturer`;
+    }
+
+    function renderTechnicalObservations(observations) {
+        if (!observations.length) return '<div class="technical-status-empty">Ingen øvrige tekniske observasjoner.</div>';
+        const initiallyVisible = observations.slice(0, 2).map(renderTechnicalCompactEvent).join('');
+        const remaining = observations.slice(2).map(renderTechnicalCompactEvent).join('');
+        if (!remaining) return `<div class="technical-status-compact-list">${initiallyVisible}</div>`;
+        const count = observations.length - 2;
+        const showLabel = additionalStructureLabel(count, false);
+        const hideLabel = additionalStructureLabel(count, true);
+        return `<div class="technical-status-compact-list">${initiallyVisible}</div><button type="button" class="technical-status-toggle" data-show-label="${showLabel}" data-hide-label="${hideLabel}" onclick="toggleTechnicalCollection(this)" aria-expanded="false">${showLabel}</button><div class="technical-status-more" hidden>${remaining}</div>`;
+    }
+
+    function renderTechnicalHistory(historical) {
+        if (!historical.length) return '';
+        const showLabel = historicalStructureLabel(historical.length, false);
+        const hideLabel = historicalStructureLabel(historical.length, true);
+        return `<div class="technical-status-history"><button type="button" class="technical-status-toggle" data-show-label="${showLabel}" data-hide-label="${hideLabel}" onclick="toggleTechnicalCollection(this)" aria-expanded="false">${showLabel}</button><div class="technical-status-more" hidden>${historical.map(renderTechnicalCompactEvent).join('')}</div></div>`;
+    }
+
+
+    function isRelevantTechnicalRisk(event) {
+        return ['AKTIV', 'AVVENT'].includes(getTechnicalLifecycle(event));
+    }
+
+    function getRiskContextHeading(event) {
+        return getTechnicalLifecycle(event) === 'AVVENT' ? 'Mulig motstandskontekst' : 'Aktiv motstandskontekst';
+    }
+
+    function getRiskEventHeading(event) {
+        return getTechnicalLifecycle(event) === 'AVVENT' ? 'Mulig teknisk risiko' : 'Aktiv teknisk risiko';
+    }
+    function renderTechnicalStatus(stock) {
+        const structure = getSignalV3(stock);
+        if (!structure) return '';
+        const entry = structure.entry_event;
+        const primary = structure.primary_structure;
+        const riskEvent = structure.risk_event;
+        const riskContext = structure.risk_context;
+        const observations = getTechnicalObservationSets(structure);
+        const riskContent = [
+            isRelevantTechnicalRisk(riskEvent) ? `<div class="technical-status-event">${getRiskEventHeading(riskEvent)}</div>${renderTechnicalEvent(riskEvent)}` : '',
+            isRelevantTechnicalRisk(riskContext) ? `<div class="technical-status-event">${getRiskContextHeading(riskContext)}</div>${renderTechnicalEvent(riskContext)}` : ''
+        ].filter(Boolean).join('');
+        return `<section class="signal-summary" aria-label="Teknisk status"><div class="signal-summary-title">Teknisk status</div><div class="technical-status-category"><div class="technical-status-category-title">Entry</div>${entry ? renderTechnicalEvent(entry) : '<div class="technical-status-empty">Ingen aktiv entry-hendelse</div>'}</div><div class="technical-status-category"><div class="technical-status-category-title">Markedsstruktur</div>${primary ? renderTechnicalEvent(primary, { direction: true }) : '<div class="technical-status-empty">Ingen primær struktur tilgjengelig</div>'}</div><div class="technical-status-category technical-status-category-risk"><div class="technical-status-category-title">Risiko</div>${riskContent || '<div class="technical-status-empty">Ingen særskilt teknisk risikohendelse</div>'}</div><div class="technical-status-category"><div class="technical-status-category-title">Observasjoner</div>${renderTechnicalObservations(observations.current)}${renderTechnicalHistory(observations.historical)}</div></section>`;
+    }
+
+    function toggleTechnicalCollection(button) {
+        const content = button?.nextElementSibling;
+        if (!content) return;
+        const expanded = content.hidden;
+        content.hidden = !expanded;
+        button.setAttribute('aria-expanded', String(expanded));
+        button.textContent = expanded ? button.dataset.hideLabel : button.dataset.showLabel;
+    }
     function getBackendComposite(stock) {
         const score = normNumber(stock?.Composite_Score, NaN);
         const maxScore = normNumber(stock?.Composite_Max, 12);
@@ -2574,7 +2833,7 @@
                     <span class="score-explanation-score">Composite Score: ${displayedScore}</span>
                     ${version ? `<span class="score-explanation-version">${version}</span>` : ''}
                 </div>
-                <div class="score-disclaimer">Composite Score er en teknisk rangeringsscore basert på historiske kurs- og volumdata. Den er ikke et kjøpssignal og vurderer ikke selskapskvalitet, verdsettelse, nyheter eller samlet investeringsrisiko.</div>
+                <div class="score-disclaimer">Composite Score oppsummerer teknisk samsvar basert på historiske kurs- og volumdata. Den er ikke en kjøpssannsynlighet, og høyere score betyr ikke dokumentert høyere fremtidig avkastning. Bruk den sammen med struktur, risiko, verdsettelse, nyheter og selskapskvalitet.</div>
                 ${hasExplanation && breakdown ? `
                     <details>
                         <summary>Se poengbidrag og justeringer</summary>
@@ -2708,6 +2967,7 @@
 
         const sigs = computeThreeSignals(s);
         const signalView = getSignalView(s, index);
+        const hasSignalV3 = Boolean(getSignalV3(s));
         const detailPrice = numberOrDash(getLastPrice(s), 2);
         const currency = formatMetadataValue(s.Valuta);
         const priceWithCurrency = currency === 'Ikke oppgitt'
@@ -2733,14 +2993,15 @@
                 <div class="info-box" onclick="showTip(event, 'rs')"><div class="label">RS 3M <i class="info-i">ⓘ</i></div><div class="val" style="color:${safeNum(s.RS_3m_vs_OSEBX, 0) >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(s.RS_3m_vs_OSEBX, 1, '%')}</div></div>
                 <div class="info-box"><div class="label">Teknisk styrke</div><div class="val" style="color:var(--blue);">${signalView.strength.score === null ? 'Ikke vurdert' : `${signalView.strength.score}/${signalView.strength.max} · ${signalView.strength.label}`}</div></div>
             </div>
-            ${renderSignalSummary(signalView)}
-            <div class="score-disclaimer">Teknisk styrke er en rangering basert på historiske kurs- og volumdata. Den er ikke et kjøpssignal og vurderer ikke selskapskvalitet, verdsettelse, nyheter eller samlet investeringsrisiko.</div>
+            ${renderTechnicalStatus(s)}
+            ${hasSignalV3 ? '' : renderSignalSummary(signalView)}
+            <div class="score-disclaimer">Composite Score oppsummerer teknisk samsvar i historiske kurs- og volumdata. Den er ikke en kjøpssannsynlighet, og høyere score betyr ikke dokumentert høyere fremtidig avkastning. Bruk den sammen med struktur, risiko, verdsettelse, nyheter og selskapskvalitet.</div>
             ${renderRiskReward(signalView)}
-            ${renderScenario(signalView)}
+            ${hasSignalV3 ? '' : renderScenario(signalView)}
             ${renderSignalHistory(s)}
-            ${renderSignalExplanations(signalView)}
+            ${hasSignalV3 ? '' : renderSignalExplanations(signalView)}
 
-            <div class="signal-box" ${getSignalModel(s) ? 'hidden' : ''}>
+            <div class="signal-box" ${(getSignalModel(s) || hasSignalV3) ? 'hidden' : ''}>
                 <div class="signal-title">Signaler</div>
                 <div class="signal-rows">
 
