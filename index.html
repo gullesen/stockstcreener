@@ -1017,7 +1017,7 @@
     <details class="guide-section"><summary>4. Søk, filtre og sortering</summary><div class="guide-content"><p>Søkefeltet søker i ticker, navn og sektor. Du kan avgrense på sektor og minste Composite Score. Sortering kan gjøres på Score, Timing, RSI, Volum, R/R, RS 3M, ATR % eller Navn; pilen endrer stigende/fallende rekkefølge.</p><p><strong>Flere signalfiltre</strong> lar deg velge trendfase, setup, timing, gyldig R/R, minste R/R, minste RS 3M, minste volum og signalstatus. Trendfasene er etablert/tidlig opptrend, sidelengs, svekket trend og etablert nedtrend. Setup omfatter bekreftet breakout, breakout-forsøk, pullback i opptrend, support bounce og ingen fersk setup. Status kan avgrenses til fersk/aktiv, fersk, aktiv, utløpt eller ingen.</p><p><strong>Filter: Aktuelle kandidater</strong> krever score minst 8, God eller Mulig timing, Fersk eller Aktiv setupstatus, gyldig R/R og R/R minst 1,5. <strong>Filter: Teknisk radar</strong> krever score minst 8 og minst ett av: Avvent-timing, Breakout-forsøk, eller etablert opptrend uten fersk eller aktiv setup. Begge er automatiske forhåndsfiltre som bare avgrenser oversikten, ikke kjøpssignaler. De er noe annet enn den personlige Radar-listen i localStorage. Antall treff vises i oversikten, og <strong>Nullstill</strong> fjerner filtrene.</p></div></details>
     <details class="guide-section"><summary>5. Mine og Radar</summary><div class="guide-content"><p><strong>Mine</strong> er listen for aksjer du selv følger eller eier. <strong>Radar</strong> er en separat, manuelt lagret overvåkingsliste. En aksje kan bare ligge i én av listene om gangen; å legge den til i den ene fjerner den fra den andre.</p><p>Du kan lagre GAV og notater i detaljvisningen. Avkastningen på aksjekortet beregnes mot GAV du selv har lagret. GAV og notater påvirker ikke tekniske beregninger. Listene, GAV og notater lagres i nettleserens localStorage, altså lokalt for aktuell nettleser og enhet.</p></div></details>
     <details class="guide-section"><summary>6. Detaljvisningen</summary><div class="guide-content"><p>Detaljvisningen har tilbakeknapp, aksjesøk og Forrige/Neste. Søk her finner ticker og navn. Forrige/Neste følger den synlige, filtrerte og sorterte listen du kom fra; uten slik sammenheng er knappene deaktivert. Øverst vises navn, ticker, siste kurs og valuta. Selskapskortet viser sektor, land, børs og valuta når de finnes.</p><p>Her håndterer du Mine/Radar, GAV og notater. I RSI-varsler velger du RSI-nivå og retningen «Stiger over» eller «Synker under». Nettleseren må ha tillatelse til varsler. Varslet vurderes når appen laster eller oppdaterer data, er ikke en egen serverbasert push-tjeneste, deaktiveres etter første treff og lagres lokalt i nettleseren. Temaknappen gjelder hele appen.</p></div></details>
-    <details class="guide-section"><summary>7. Kursgraf og tidsperioder</summary><div class="guide-content"><p>Velg 1U, 1M, 3M, 6M, 1Å, 3Å eller 5Å for å avgrense kursperioden. 1U–1Å bruker dagsdata, mens 3Å og 5Å bruker komprimerte ukedata. Dersom aksjen har kortere børsnoteringshistorikk, vises bare tilgjengelig historie. Periodefeltet kan dras horisontalt på smale skjermer; diagrammet og resten av detaljsiden får ikke horisontal scrolling.</p><p>Grafen viser historisk sluttkurs. RSI vises i et separat diagram med referanselinjer ved 30 og 70, men kan være skjult på 3Å og 5Å dersom ukedataene ikke inneholder ukentlig RSI. Grafen viser ikke SMA-, EMA- eller volumlinjer i dagens frontend. Kanal-knappen vises når kanaldata finnes. Trendkanalbryteren vises for dagperiodene og Kanal, men skjules på 3Å og 5Å; kanaloverlegg brukes ikke på ukegrafene. En graf og valgt periode er historisk visualisering, ikke prognose.</p></div></details>
+    <details class="guide-section"><summary>7. Kursgraf og tidsperioder</summary><div class="guide-content"><p>Velg 1U, 1M, 3M, 6M, 1Å, 3Å eller 5Å for reelle kalenderperioder. Periodens slutt er siste tilgjengelige markedsdato; helger og børsfrie dager gjør derfor at antall viste handelsdager kan være lavere enn antall kalenderdager. 1U–1Å bruker dagsdata, mens 3Å og 5Å bruker komprimerte ukedata. Dersom aksjen har kortere børsnoteringshistorikk, vises bare tilgjengelig historie. Periodefeltet kan dras horisontalt på smale skjermer; diagrammet og resten av detaljsiden får ikke horisontal scrolling.</p><p>Grafen viser historisk sluttkurs og diskrete volumstolper nederst i hovedgrafen. Volum følger samme periode som kursgrafen: dagsvolum for 1U–1Å og ukentlig volum fra HistorikkUke for 3Å og 5Å. Grønn stolpe betyr at sluttkurs var lik eller høyere enn åpning, rød stolpe lavere; fargen er ikke et mål på kjøps- eller salgspress, og høyt volum bestemmer ikke framtidig kursretning. Volumstolpene skjules når volum mangler. RSI vises i et separat diagram med referanselinjer ved 30 og 70, men kan være skjult på 3Å og 5Å dersom ukedataene ikke inneholder ukentlig RSI. Grafen viser ikke SMA- eller EMA-linjer i dagens frontend. Kanal-knappen vises når kanaldata finnes. Trendkanalbryteren vises for dagperiodene og Kanal, men skjules på 3Å og 5Å; kanaloverlegg brukes ikke på ukegrafene. En graf og valgt periode er historisk visualisering, ikke prognose.</p></div></details>
     <details class="guide-section"><summary>8. Teknisk status</summary><div class="guide-content"><p><strong>Entry</strong> er en kvalifisert, aktuell teknisk entry-hendelse. Manglende Entry betyr ikke at aksjen er dårlig, og Entry er ikke en kjøpsanbefaling.</p><p><strong>Primær struktur</strong> er strukturmodellen som prioriteres viktigst nå. Den kan vise retning, horisont, status, ferskhet, alder, rangeringsscore, kvalitet og nivå/sone. Rangeringsscore prioriterer tekniske strukturer, ikke sannsynlighet for avkastning. Kvalitet beskriver modellens tekniske kvalitet, ikke framtidig kursretning.</p><p><strong>Observasjoner</strong> inneholder sekundære strukturer. De gir kontekst på andre tidshorisonter og kan støtte eller stå i konflikt med primær struktur; konflikt mellom horisonter er informasjon, ikke nødvendigvis feil. Bruddforsøk, retest pågår, fortsettelse, støtte, motstand og range er ikke automatisk aktive Entry-signaler. Knappen for ekstra strukturer viser flere aktuelle observasjoner, mens knappen for historiske strukturer viser avsluttede forhold.</p><p><strong>Risiko</strong>: En risikohendelse er en konkret teknisk hendelse; risikokontekst er et relevant bakteppe, for eksempel motstand. Bare aktive eller avventende forhold omtales som aktuelle. Historiske, utløpte, invaliderte og ikke relevante forhold vises separat eller filtreres bort. Positiv Entry og aktiv risiko kan eksistere samtidig.</p><p>Statuser: <strong>Fersk</strong> er nylig observert; <strong>Aktiv</strong> er aktuell; <strong>Aktiv, ikke fersk</strong> er fortsatt aktuell, men eldre; <strong>Avventer</strong> er mulig, men ikke utløst; <strong>Ikke relevant</strong>, <strong>Utløpt</strong>, <strong>Invalidert</strong> og <strong>Historisk</strong> er ikke aktuelle signaler.</p></div></details>
     <details class="guide-section"><summary>9. Trendkanaler</summary><div class="guide-content"><p>Trendkanaler beskriver et beregnet kursområde mellom historiske vendepunkter. Når en robust aktiv kanal finnes, vises retning, start- og oppdaget dato, alder, kvalitet, nedre/midtre/øvre grense nå, kanalposisjon og avstand til nærmeste grense. Avstand kan vises i prosent og ATR.</p><p>Nedre kanalgrense er ikke automatisk kjøpsnivå og øvre grense er ikke automatisk salgsnivå. Posisjonen beskriver hvor kursen befinner seg i modellen. Et mulig brudd er ikke bekreftet; et bekreftet brudd er fortsatt bare en teknisk hendelse. Kvalitet er ikke sannsynlighet for at kursen stiger eller faller.</p></div></details>
     <details class="guide-section"><summary>10. Støtte og motstand</summary><div class="guide-content"><p>Nivåseksjonen viser neste og sekundær støtte/motstand når de er beregnet. En sone er et intervall, ikke et eksakt punkt: kursen kan reagere innenfor området. Manglende grunnlag vises som <em>Ingen støtte</em> eller <em>Ingen motstand</em>.</p><p>Støtte og motstand er mulige reaksjonsområder, ikke garantier. Se dem sammen med volum, trend, avstand til nivået og om et brudd eller en retest faktisk bekreftes.</p></div></details>
@@ -1726,22 +1726,111 @@
         return normNumber(entry?.rsi ?? entry?.RSI ?? entry?.RSI_14, NaN);
     }
 
+    function getHistoryOpen(entry) {
+        return normNumber(entry?.open ?? entry?.Open ?? entry?.aapning ?? entry?.åpning, NaN);
+    }
+
+    function getHistoryVolume(entry) {
+        const volume = normNumber(entry?.volume ?? entry?.Volume ?? entry?.volum ?? entry?.Volum, NaN);
+        return Number.isFinite(volume) && volume >= 0 ? volume : NaN;
+    }
+
+    function withChartAlpha(color, alpha, fallback) {
+        const hex = String(color || '').trim().replace(/^#/, '');
+        if (/^[0-9a-f]{6}$/i.test(hex)) {
+            const value = Number.parseInt(hex, 16);
+            return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+        }
+        const rgb = String(color || '').match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+        if (rgb) return `rgba(${rgb[1]}, ${rgb[2]}, ${rgb[3]}, ${alpha})`;
+        return fallback;
+    }
+
+    function formatChartVolume(value) {
+        const volume = normNumber(value, NaN);
+        if (!Number.isFinite(volume) || volume <= 0) return '';
+        const format = number => number.toLocaleString('nb-NO', { maximumFractionDigits: 1 });
+        if (volume >= 1e6) return `${format(volume / 1e6)} mill.`;
+        if (volume >= 1e3) return `${format(volume / 1e3)}k`;
+        return Math.round(volume).toLocaleString('nb-NO');
+    }
+
+    function getHistoryDate(entry, index) {
+        const raw = pickDate(entry, index);
+        if (raw instanceof Date && Number.isFinite(raw.getTime())) {
+            return new Date(Date.UTC(raw.getUTCFullYear(), raw.getUTCMonth(), raw.getUTCDate()));
+        }
+        const text = String(raw ?? '').trim();
+        const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s].*)?$/);
+        if (iso) {
+            const year = Number(iso[1]), month = Number(iso[2]), day = Number(iso[3]);
+            const date = new Date(Date.UTC(year, month - 1, day));
+            return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
+        }
+        if (!/\d{4}/.test(text)) return null;
+        const parsed = new Date(text);
+        return Number.isFinite(parsed.getTime())
+            ? new Date(Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth(), parsed.getUTCDate()))
+            : null;
+    }
+
+    function subtractUtcCalendar(endDate, months = 0, years = 0) {
+        const target = new Date(Date.UTC(endDate.getUTCFullYear() - years, endDate.getUTCMonth() - months, 1));
+        const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+        return new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), Math.min(endDate.getUTCDate(), lastDay)));
+    }
+
+    function getChartPeriodStart(endDate, period) {
+        if (!endDate) return null;
+        if (period === 7) return new Date(endDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+        if (period === 30) return subtractUtcCalendar(endDate, 1);
+        if (period === 90) return subtractUtcCalendar(endDate, 3);
+        if (period === 180) return subtractUtcCalendar(endDate, 6);
+        if (period === 365) return subtractUtcCalendar(endDate, 0, 1);
+        if (period === '3y') return subtractUtcCalendar(endDate, 0, 3);
+        if (period === '5y') return subtractUtcCalendar(endDate, 0, 5);
+        return null;
+    }
+
+    function getDatedCloseHistory(history) {
+        return (Array.isArray(history) ? history : [])
+            .map((entry, index) => ({ entry, date: getHistoryDate(entry, index), index }))
+            .filter(item => item.date && Number.isFinite(getHistoryClose(item.entry)))
+            .sort((a, b) => a.date - b.date || a.index - b.index);
+    }
+
     function getWeeklyHistory(stock) {
         const candidates = [stock?.HistorikkUke, stock?.historikkUke, stock?.weeklyHistory, stock?.WeeklyHistory];
         const weekly = candidates.find(Array.isArray) || [];
-        return weekly.filter((entry, index) => {
-            const date = pickDate(entry, index);
-            return !/^P\d+$/.test(date) && Number.isFinite(getHistoryClose(entry));
-        });
+        return weekly.filter((entry, index) => getHistoryDate(entry, index) && Number.isFinite(getHistoryClose(entry)));
     }
 
     function getChartHistory(stock, period) {
-        if (!isLongChartPeriod(period)) {
-            return { history: getTrendChannelRange(stock, period), isLong: false, requestedRows: 0, availableRows: 0, valid: true };
+        if (period === 'channel') {
+            const history = getTrendChannelRange(stock, period);
+            return { history, isLong: false, valid: true, startDate: null, endDate: null, earliestAvailableDate: null, hasFullCoverage: true };
         }
-        const requestedRows = period === '3y' ? 156 : 260;
-        const weekly = getWeeklyHistory(stock);
-        return { history: weekly.slice(-requestedRows), isLong: true, requestedRows, availableRows: weekly.length, valid: weekly.length >= 2 };
+        const isLong = isLongChartPeriod(period);
+        const source = isLong ? getWeeklyHistory(stock) : getStockHistory(stock);
+        const datedHistory = getDatedCloseHistory(source);
+        if (!datedHistory.length) {
+            return { history: [], isLong, valid: !isLong, startDate: null, endDate: null, earliestAvailableDate: null, hasFullCoverage: true };
+        }
+        const endDate = datedHistory[datedHistory.length - 1].date;
+        const startDate = getChartPeriodStart(endDate, period);
+        const earliestAvailableDate = datedHistory[0].date;
+        const history = datedHistory
+            .filter(item => !startDate || (item.date >= startDate && item.date <= endDate))
+            .map(item => item.entry);
+        return {
+            history,
+            isLong,
+            valid: history.length >= 2,
+            startDate,
+            endDate,
+            earliestAvailableDate,
+            hasFullCoverage: !startDate || earliestAvailableDate <= startDate
+        };
     }
 
     function normNumber(v, fallback = NaN) {
@@ -2740,9 +2829,9 @@
         const muted = graph.isBreak ? 0.6 : 1;
         const channelColor = getThemeColor('--blue', '#0a84ff');
         const datasets = [
-            { label: 'Nedre kanalgrense', data: series('lower'), borderColor: channelColor, backgroundColor: graph.isBreak ? 'rgba(10, 132, 255, 0.06)' : 'rgba(10, 132, 255, 0.13)', borderWidth: 2 * muted, pointRadius: 0, fill: '+1', tension: 0, spanGaps: false },
-            { label: 'Øvre kanalgrense', data: series('upper'), borderColor: channelColor, borderWidth: 2 * muted, pointRadius: 0, fill: false, tension: 0, spanGaps: false },
-            { label: 'Midtlinje', data: series('middle'), borderColor: chartColors.axis, borderWidth: 1.25 * muted, borderDash: [6, 5], pointRadius: 0, fill: false, tension: 0, spanGaps: false }
+            { label: 'Nedre kanalgrense', data: series('lower'), borderColor: channelColor, backgroundColor: graph.isBreak ? 'rgba(10, 132, 255, 0.06)' : 'rgba(10, 132, 255, 0.13)', borderWidth: 2 * muted, pointRadius: 0, fill: '+1', tension: 0, spanGaps: false, order: 0 },
+            { label: 'Øvre kanalgrense', data: series('upper'), borderColor: channelColor, borderWidth: 2 * muted, pointRadius: 0, fill: false, tension: 0, spanGaps: false, order: 0 },
+            { label: 'Midtlinje', data: series('middle'), borderColor: chartColors.axis, borderWidth: 1.25 * muted, borderDash: [6, 5], pointRadius: 0, fill: false, tension: 0, spanGaps: false, order: 0 }
         ];
         const breakDate = trendChannelDateKey(graph.recent?.bekreftet_dato);
         if (graph.isBreak && breakDate) {
@@ -2750,7 +2839,7 @@
             const closeAtBreak = history.find((entry, index) => trendChannelDateKey(pickDate(entry, index)) === breakDate);
             const pointValue = Number.isFinite(markerValue) ? markerValue : normNumber(closeAtBreak?.close, NaN);
             const direction = getTrendChannelBreakDirection(graph.channel, graph.recent);
-            datasets.push({ label: `Bekreftet brudd ${direction ? direction.toLowerCase() : 'ukjent retning'}`, data: labels.map(label => trendChannelDateKey(label) === breakDate && Number.isFinite(pointValue) ? pointValue : null), borderColor: chartColors.blue, backgroundColor: chartColors.blue, pointRadius: 5, pointHoverRadius: 6, pointStyle: 'triangle', showLine: false, fill: false });
+            datasets.push({ label: `Bekreftet brudd ${direction ? direction.toLowerCase() : 'ukjent retning'}`, data: labels.map(label => trendChannelDateKey(label) === breakDate && Number.isFinite(pointValue) ? pointValue : null), borderColor: chartColors.blue, backgroundColor: chartColors.blue, pointRadius: 5, pointHoverRadius: 6, pointStyle: 'triangle', showLine: false, fill: false, order: 0 });
         }
         return datasets;
     }
@@ -3200,7 +3289,7 @@
             toast.classList.add('active');
             setTimeout(hideTip, 3500);
         }
-        if (isLongPeriod && chartSelection.valid && chartSelection.availableRows < chartSelection.requestedRows) {
+        if (isLongPeriod && chartSelection.valid && !chartSelection.hasFullCoverage) {
             toast.innerHTML = `<b>Lang kurshistorikk:</b> Viser bare tilgjengelig historikk.`;
             toast.classList.add('active');
             setTimeout(hideTip, 3500);
@@ -3227,7 +3316,7 @@
         const ctxRsi = document.getElementById('rsiChart')?.getContext('2d');
         if (!chartSelection.valid) {
             if (ctxPrice) ctxPrice.clearRect(0, 0, ctxPrice.canvas.width, ctxPrice.canvas.height);
-            toast.innerHTML = `<b>Lang kurshistorikk er ikke tilgjengelig for denne aksjen.</b>`;
+            toast.innerHTML = `<b>${isLongPeriod ? 'Lang kurshistorikk' : 'Kurshistorikk'} er ikke tilgjengelig for denne aksjen.</b>`;
             toast.classList.add('active');
             setTimeout(hideTip, 3500);
             return;
@@ -3239,11 +3328,40 @@
             const close = getHistoryClose(entry);
             return Number.isFinite(close) ? close : null;
         });
+        const volumeValues = history.map(entry => {
+            const volume = getHistoryVolume(entry);
+            return Number.isFinite(volume) && volume > 0 ? volume : null;
+        });
+        const validVolumes = volumeValues.filter(value => Number.isFinite(value) && value > 0);
+        const maxVolume = validVolumes.length ? Math.max(...validVolumes) : NaN;
+        const volumeAxisMax = Number.isFinite(maxVolume) && maxVolume > 0 ? maxVolume / 0.23 : NaN;
+        const hasVolume = validVolumes.length >= 2 && Number.isFinite(volumeAxisMax) && volumeAxisMax > 0;
+        const volumeColors = history.map((entry, index) => {
+            const open = getHistoryOpen(entry);
+            const close = closes[index];
+            if (!Number.isFinite(open) || !Number.isFinite(close)) return withChartAlpha(getThemeColor('--secondary', '#8e8e93'), 0.18, 'rgba(142, 142, 147, 0.18)');
+            return close >= open
+                ? withChartAlpha(chartColors.positive, 0.22, 'rgba(50, 215, 75, 0.22)')
+                : withChartAlpha(chartColors.negative, 0.22, 'rgba(255, 69, 58, 0.22)');
+        });
+        const volumeDatasets = hasVolume ? [{
+            type: 'bar', label: 'Volum', data: volumeValues, yAxisID: 'yVolume',
+            backgroundColor: volumeColors, borderWidth: 0, barPercentage: 0.72,
+            categoryPercentage: 0.78, maxBarThickness: 12, order: 20,
+            tooltip: {
+                callbacks: {
+                    label: context => {
+                        const volume = formatChartVolume(context.parsed?.y);
+                        return volume ? `Volum: ${volume}` : '';
+                    }
+                }
+            }
+        }] : [];
         const trendChannelDatasets = isLongPeriod ? [] : buildTrendChannelDatasets(s, history, labels, chartColors);
-        const priceDatasets = [{
-            label: 'Kurs', data: closes,
+        const priceDatasets = [...volumeDatasets, {
+            type: 'line', label: 'Kurs', data: closes,
             borderColor: safeNum(s.RS_dag, 0) >= 0 ? chartColors.positive : chartColors.negative,
-            borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.15, spanGaps: false
+            borderWidth: 2.5, pointRadius: 0, fill: false, tension: 0.15, spanGaps: false, order: 0
         }, ...trendChannelDatasets];
 
         if (typeof Chart !== 'function') {
@@ -3267,7 +3385,10 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         x: isLongPeriod ? { grid: { display: false }, ticks: { color: chartColors.axis, autoSkip: true, maxTicksLimit: 5, font: { size: 10 } } } : { display: false },
-                        y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } }
+                        y: { grid: { color: chartColors.grid }, ticks: { color: chartColors.axis, font: { size: 10 } } },
+                        ...(hasVolume ? {
+                            yVolume: { display: false, min: 0, max: volumeAxisMax, beginAtZero: true, grid: { drawOnChartArea: false, drawTicks: false, drawBorder: false } }
+                        } : {})
                     }
                 }
             });
